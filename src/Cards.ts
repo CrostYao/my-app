@@ -1,3 +1,19 @@
+import React, { Component } from 'react';
+
+class Card extends React.Component {
+    constructor(props: string) {
+        super(props);
+        let pokemon: Poekmon = JSON.parse(props);
+    }
+    render() {
+        return (
+            null
+        );
+    }
+}
+
+export default Card;
+
 interface Poekmon {
     id: string;
     name: string;
