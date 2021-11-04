@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 
 let poke: Pokemon[] = [];
+let favoritCards: Pokemon[] = [];
 const Cards = () => {
 
     const [pokemon, setPokemon] = useState(poke);
+    const [favorite, setFavor] = useState(favoritCards);
     useEffect(() => {
         fetch("https://api.pokemontcg.io/v2/cards?q=name:gardevoir", { method: "GET" })
             .then(res => res.json())
@@ -15,7 +17,13 @@ const Cards = () => {
                 console.error(e);
             });
     }, [])
-
+    function name(pokemon: Pokemon) {
+        if (favoritCards.indexOf(pokemon) === -1)
+            favoritCards.push(pokemon);
+        console.log(favoritCards);
+        console.log(favorite);
+        setFavor(favorite => ([...favoritCards]));
+    }
     return (
         <div>
             <h1 style={{ color: "red" }}>A Simple React Component Example with Typescript </h1>
@@ -23,7 +31,7 @@ const Cards = () => {
                 pokemon.length !== 0 ?
                     pokemon.map((item, i) => {
                         // Return the element. Also pass key     
-                        return (<img height="250" src={item.images.large} />)
+                        return (<img height="250" src={item.images.large} onClick={() => { name(item); }} />)
                     }) : <h1> Pleses wait some time.... </h1>
             }
             {/* {pokemon.map((item, index) => (
@@ -31,6 +39,13 @@ const Cards = () => {
             ))} */}
             < p > 安安.</p>
             < p > 哭R </p>
+            {
+                favorite.length !== 0 ?
+                    favorite.map((item, i) => {
+                        // Return the element. Also pass key     
+                        return (<img height="100" src={item.images.large} />)
+                    }) : <h1> no favorite cards.... </h1>
+            }
         </div>
     )
 }
