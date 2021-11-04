@@ -1,20 +1,43 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from "react";
 
-class Card extends React.Component {
-    constructor(props: string) {
-        super(props);
-        let pokemon: Poekmon = JSON.parse(props);
-    }
-    render() {
-        return (
-            null
-        );
-    }
+let poke: Pokemon[] = [];
+const Cards = () => {
+
+    const [pokemon, setPokemon] = useState(poke);
+    useEffect(() => {
+        fetch("https://api.pokemontcg.io/v2/cards?q=name:gardevoir", { method: "GET" })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                poke = (data.data);
+                setPokemon(poke)
+            }).catch(e => {
+                console.error(e);
+            });
+    }, [])
+
+    return (
+        <div>
+            <h1 style={{ color: "red" }}>A Simple React Component Example with Typescript </h1>
+            {
+                pokemon.length !== 0 ?
+                    pokemon.map((item, i) => {
+                        // Return the element. Also pass key     
+                        return (<img height="250" src={item.images.large} />)
+                    }) : <h1> Pleses wait some time.... </h1>
+            }
+            {/* {pokemon.map((item, index) => (
+                <img height="250" src={item ? item.images.large : ""} />
+            ))} */}
+            < p > 安安.</p>
+            < p > 哭R </p>
+        </div>
+    )
 }
 
-export default Card;
+export default Cards;
 
-interface Poekmon {
+export interface Pokemon {
     id: string;
     name: string;
     supertype: string;
