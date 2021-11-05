@@ -2,49 +2,105 @@ import React, { useState, useEffect } from "react";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
+let totalCount: number;
+let currentPage: number;
+let totalPage: number;
 const Cards = () => {
 
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
+    const [page, SetPage] = useState(currentPage);
+    let imgearray = [];
     useEffect(() => {
-        fetch("https://api.pokemontcg.io/v2/cards?q=name:gardevoir", { method: "GET" })
+        fetch("https://api.pokemontcg.io/v2/cards?page=1", { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                poke = (data.data);
-                setPokemon(poke)
+                // totalCount = data.totalCount;
+                // currentPage = data.page;
+                // totalPage = totalCount / 250;
+                // totalPage = Math.round(totalPage);
+                // poke.push(...data.data);
+                poke = data.data;
+                setPokemon(poke);
+                // }).finally(() => {
+                //     for (let i = 0; i < totalPage; i++) {
+                //         fetch("https://api.pokemontcg.io/v2/cards?page=" + `${i + 1}`, { method: "GET" })
+                //             .then(res => res.json())
+                //             .then(data => {
+                //                 console.log(data);
+                //             }).finally(() => {
+                //             }).catch(e => {
+                //                 console.error(e);
+                //             });
+                //     }
             }).catch(e => {
                 console.error(e);
             });
     }, [])
-    function name(pokemon: Pokemon) {
+
+    function ChangePage(num: number) {
+        fetch("https://api.pokemontcg.io/v2/cards?page=" + `${num}`, { method: "GET" })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                poke = data.data;
+                setPokemon(poke);
+                // }).finally(() => {
+                //     if (imgearray.length > 0) {
+                //         for (let i = 0; i < imgearray.length; i++) {
+                //             document.getElementById(i.toString())?.remove();
+                //         }
+                //         console.log(document);
+                //         imgearray = [];
+                //     }
+            }).catch(e => {
+                console.error(e);
+            });
+
+
+    }
+    function SetFavorite(pokemon: Pokemon) {
         if (favoritCards.indexOf(pokemon) === -1)
             favoritCards.push(pokemon);
         console.log(favoritCards);
         console.log(favorite);
         setFavor(favorite => ([...favoritCards]));
     }
+    function RemoveFavorite(pokemon: Pokemon) {
+        favoritCards.splice(favoritCards.indexOf(pokemon), 1);
+        console.log(favoritCards);
+        console.log(favorite);
+        setFavor(favorite => ([...favoritCards]));
+    }
+
     return (
         <div>
-            <h1 style={{ color: "red" }}>A Simple React Component Example with Typescript </h1>
+            <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
             {
                 pokemon.length !== 0 ?
                     pokemon.map((item, i) => {
                         // Return the element. Also pass key     
-                        return (<img height="250" src={item.images.large} onClick={() => { name(item); }} />)
+                        // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
+                        // imgearray.push(j);
+                        return (<img height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />)
                     }) : <h1> Pleses wait some time.... </h1>
             }
             {/* {pokemon.map((item, index) => (
                 <img height="250" src={item ? item.images.large : ""} />
             ))} */}
             < p > 安安.</p>
-            < p > 哭R </p>
+            <button onClick={() => ChangePage(2)} />
+            < h2 > Favorite Cards </h2>
+            <p>(Click to Remove)</p>
             {
                 favorite.length !== 0 ?
                     favorite.map((item, i) => {
-                        // Return the element. Also pass key     
-                        return (<img height="100" src={item.images.large} />)
-                    }) : <h1> no favorite cards.... </h1>
+                        // Return the element. Also pass key
+                        // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
+                        // imgearray.push(j);
+                        return (<img height="150" src={item.images.large} onClick={() => { RemoveFavorite(item); }} />)
+                    }) : <p> no favorite cards.... </p>
             }
         </div>
     )
