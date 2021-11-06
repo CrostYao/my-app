@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { createLogicalOr } from "typescript";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
 let totalCount: number = 0 ;
 let currentPage: number = 0;
 let totalPage: number = 0;
+let showcount :number =20;
 const Cards = () => {
 
     const [pokemon, setPokemon] = useState(poke);
@@ -12,13 +14,13 @@ const Cards = () => {
     const [page, SetPage] = useState(currentPage);
     let imgearray = [];
     useEffect(() => {
-        fetch("https://api.pokemontcg.io/v2/cards?pageSize=50&page=1", { method: "GET" })
+        fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=1`, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
                 totalCount = data.totalCount;
                 currentPage = data.page;
-                totalPage = totalCount / 50;
+                totalPage = totalCount / showcount;
                 totalPage = Math.round(totalPage);
                 poke = data.data;
                 setPokemon(pokemon =>([...poke]));
@@ -43,7 +45,7 @@ const Cards = () => {
         return;
         currentPage+= num;
         setPokemon([]);
-        fetch("https://api.pokemontcg.io/v2/cards?pageSize=50&page=" + `${currentPage}`, { method: "GET" })
+        fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -85,7 +87,7 @@ const Cards = () => {
                 <img height="250" src={item ? item.images.large : ""} />
             ))} */}
             < p > 安安.</p>
-            <button onClick={() => ChangePage(-1)}>Back Page</button><p>{currentPage}/{totalPage}</p> <button onClick={() => ChangePage(1)}>Next Page</button>
+            <button onClick={() => ChangePage(-1)}>Back Page</button><p style={{color:"black"}}>{currentPage} / {totalPage}</p> <button onClick={() => ChangePage(1)}>Next Page</button>
             < h2 > Favorite Cards </h2>
             <p>(Click to Remove)</p>
             {
