@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
-let totalCount: number;
-let currentPage: number;
-let totalPage: number;
+let totalCount: number = 0 ;
+let currentPage: number = 0;
+let totalPage: number = 0;
 const Cards = () => {
 
     const [pokemon, setPokemon] = useState(poke);
@@ -12,17 +12,16 @@ const Cards = () => {
     const [page, SetPage] = useState(currentPage);
     let imgearray = [];
     useEffect(() => {
-        fetch("https://api.pokemontcg.io/v2/cards?page=1", { method: "GET" })
+        fetch("https://api.pokemontcg.io/v2/cards?pageSize=50&page=1", { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                // totalCount = data.totalCount;
-                // currentPage = data.page;
-                // totalPage = totalCount / 250;
-                // totalPage = Math.round(totalPage);
-                // poke.push(...data.data);
+                totalCount = data.totalCount;
+                currentPage = data.page;
+                totalPage = totalCount / 50;
+                totalPage = Math.round(totalPage);
                 poke = data.data;
-                setPokemon(poke);
+                setPokemon(pokemon =>([...poke]));
                 // }).finally(() => {
                 //     for (let i = 0; i < totalPage; i++) {
                 //         fetch("https://api.pokemontcg.io/v2/cards?page=" + `${i + 1}`, { method: "GET" })
@@ -40,20 +39,16 @@ const Cards = () => {
     }, [])
 
     function ChangePage(num: number) {
-        fetch("https://api.pokemontcg.io/v2/cards?page=" + `${num}`, { method: "GET" })
+        if((currentPage === 1 && num === -1)||(currentPage === totalPage && num === 1))
+        return;
+        currentPage+= num;
+        setPokemon([]);
+        fetch("https://api.pokemontcg.io/v2/cards?pageSize=50&page=" + `${currentPage}`, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
                 poke = data.data;
-                setPokemon(poke);
-                // }).finally(() => {
-                //     if (imgearray.length > 0) {
-                //         for (let i = 0; i < imgearray.length; i++) {
-                //             document.getElementById(i.toString())?.remove();
-                //         }
-                //         console.log(document);
-                //         imgearray = [];
-                //     }
+                setPokemon(pokemon =>([...poke]));
             }).catch(e => {
                 console.error(e);
             });
@@ -90,7 +85,7 @@ const Cards = () => {
                 <img height="250" src={item ? item.images.large : ""} />
             ))} */}
             < p > 安安.</p>
-            <button onClick={() => ChangePage(2)} />
+            <button onClick={() => ChangePage(-1)}>Back Page</button><p>{currentPage}/{totalPage}</p> <button onClick={() => ChangePage(1)}>Next Page</button>
             < h2 > Favorite Cards </h2>
             <p>(Click to Remove)</p>
             {
