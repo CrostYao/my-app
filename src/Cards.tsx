@@ -171,7 +171,7 @@ interface Sets {
     total: number;
     legalities: { unlimited: string };
     ptcgCode: string;
-    releaseData: Date;
+    releaseDate: Date;
     updatedAt: Date;
     images: { symbol: string, logo: string };
 }
@@ -190,3 +190,74 @@ interface Foil {
     market: number;
     directLow: number;
 }
+// {"https://api.pokemontcg.io/v2/types"
+//     "data": [
+//       "Colorless",
+//       "Darkness",
+//       "Dragon",
+//       "Fairy",
+//       "Fighting",
+//       "Fire",
+//       "Grass",
+//       "Lightning",
+//       "Metal",
+//       "Psychic",
+//       "Water"
+//     ]
+//   }
+// {https://api.pokemontcg.io/v2/supertypes
+//     "data": [
+//       "Energy",
+//       "Pokémon",
+//       "Trainer"
+//     ]
+//   }
+// {"https://api.pokemontcg.io/v2/rarities"
+//     "data": [
+//         "Amazing",
+//         "Common",
+//         "LEGEND",
+//         "Promo",
+//         "Rare",
+//         "ACE",
+//         "BREAK",
+//         "Holo",
+//         "Holo EX",
+//         "Holo GX",
+//         "Holo LV.X",
+//         "Holo Star",
+//         "Holo V",
+//         "Holo VMAX",
+//         "Prime",
+//         "Prism Star",
+//         "Rainbow",
+//         "Secret",
+//         "Shining",
+//         "Shiny",
+//         "Shiny GX",
+//         "Ultra",
+//         "Uncommon"
+//     ]
+//   }
+//https://pjchender.dev/react/note-react-with-ts/#children-as-props
+// # Get all cards
+// curl "https://api.pokemontcg.io/v2/cards"
+
+// # Get a single page of cards
+// curl "https://api.pokemontcg.io/v2/cards?page=1&pageSize=250"
+
+// # Filter cards via query parameters
+// curl "https://api.pokemontcg.io/v2/cards?q=set.name:generations subtypes:mega"
+
+// # Order by release date (descending)
+// curl "https://api.pokemontcg.io/v2/cards?q=subtypes:mega&orderBy=-set.releaseDate"
+
+
+//https://api.pokemontcg.io/v2/cards?pageSize=10&q=types:water     //type
+//https://api.pokemontcg.io/v2/cards?pageSize=10&q=name:Azumarill  //name
+
+//nationalPokedexNumbers:[1 TO 151] number
+//hp:[* TO 100]
+//hp:[150 TO *]
+
+
