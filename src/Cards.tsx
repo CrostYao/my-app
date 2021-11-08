@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Pagination, ImageList, ImageListItem, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
+import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
 let totalCount: number = 0;
-let currentPage: number = 0;
+let currentPage: number = 1;
 let totalPage: number = 0;
 let showcount: number = 20;
-const Cards = () => {
+let OnSelectPokemon: Pokemon;
+let loading: boolean = false;
 
+const Cards = () => {
+    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
-    const [page, SetPage] = useState(currentPage);
-    let imgearray = [];
+    const [open, setOpen] = useState(false);
+    const [openinfo, setOpenCardinfo] = useState(false);
+
     useEffect(() => {
-        fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=1`, { method: "GET" })
+        loading = true;
+        fetch(apiurl, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -23,39 +28,33 @@ const Cards = () => {
                 totalPage = totalCount / showcount;
                 totalPage = Math.round(totalPage);
                 poke = data.data;
+                loading = false;
                 setPokemon(pokemon => ([...poke]));
-                // }).finally(() => {
-                //     for (let i = 0; i < totalPage; i++) {
-                //         fetch("https://api.pokemontcg.io/v2/cards?page=" + `${i + 1}`, { method: "GET" })
-                //             .then(res => res.json())
-                //             .then(data => {
-                //                 console.log(data);
-                //             }).finally(() => {
-                //             }).catch(e => {
-                //                 console.error(e);
-                //             });
-                //     }
             }).catch(e => {
                 console.error(e);
             });
     }, [])
-
+    function setApi() {
+        apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
+    }
     function ChangePage(num: number) {
         // if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
         //     return;
         currentPage = num;
+        setApi();
+        console.log(apiurl);
         setPokemon([]);
-        fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`, { method: "GET" })
+        loading = true;
+        fetch(apiurl, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
                 poke = data.data;
+                loading = false;
                 setPokemon(pokemon => ([...poke]));
             }).catch(e => {
                 console.error(e);
             });
-
-
     }
     function SetFavorite(pokemon: Pokemon) {
         if (favoritCards.indexOf(pokemon) === -1)
@@ -73,60 +72,156 @@ const Cards = () => {
     const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
         ChangePage(value);
     };
+    const onSearchChange = (event: materialui.SelectChangeEvent<any>) => {
+        // setAge(Number(event.target.value) || "");
+    };
+    function OpenCardinfo(pokemon: Pokemon) {
+        OnSelectPokemon = pokemon;
+        setOpenCardinfo(true);
+    }
+    function CloseCardinfo(event: any, reason: string) {
+        // OnSelectPokemon = ;
+        if (reason === "Ok") {
+        }
+
+        setOpenCardinfo(false);
+    }
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = (event: any, reason: string) => {
+        if (reason === "Ok") {
+            console.log("Ok");
+        } else {
+
+        }
+        // if (reason !== "backdropClick") {
+        // }
+        setOpen(false);
+    };
     return (
         <div>
-            <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
+            <Grid alignItems="center" justifyContent="center" container >
+                <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
+            </Grid>
+            {/** Select Search Options */}
+            <Grid alignItems="center" justifyContent="center" container  >
+                <Button onClick={handleClickOpen}>Open Search Options</Button>
+                <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
+                    <DialogTitle>Options</DialogTitle>
+                    <DialogContent>
+                        <Box component="form" sx={{ display: "flex", flexWrap: "wrap" }}>
+                            <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                <InputLabel htmlFor="demo-dialog-native">Age</InputLabel>
+                                <Select
+                                    native
+                                    value={0}
+                                    onChange={onSearchChange}
+                                    input={<OutlinedInput label="Age" id="demo-dialog-native" />}
+                                >
+                                    <option aria-label="None" value="" />
+                                    <option value={10}>Ten</option>
+                                    <option value={20}>Twenty</option>
+                                    <option value={30}>Thirty</option>
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                <InputLabel id="demo-dialog-select-label">Age</InputLabel>
+                                <Select
+                                    labelId="demo-dialog-select-label"
+                                    id="demo-dialog-select"
+                                    value={0}
+                                    onChange={onSearchChange}
+                                    input={<OutlinedInput label="Age" />}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    <MenuItem value={10}>Ten</MenuItem>
+                                    <MenuItem value={20}>Twenty</MenuItem>
+                                    <MenuItem value={30}>Thirty</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </DialogContent>
+                    <DialogActions>
+                        <Grid alignItems="center" justifyContent="center" container spacing={5}>
+                            <Grid item>
+                                <Button variant="contained" color="primary" onClick={() => handleClose("", "Cancel")}>Cancel</Button>
+                            </Grid>
+                            <Grid item>
+                                <Button variant="contained" color="secondary" onClick={() => handleClose("", "Ok")}>Ok</Button>
+                            </Grid>
+                        </Grid>
+                    </DialogActions>
+                </Dialog>
+            </Grid>
+            {/** Select Card Info */}
+            {/* <Grid alignItems="center" justifyContent="center" container > */}
+            <Dialog fullWidth={true} maxWidth={"xl"} disableEscapeKeyDown open={openinfo} onClose={CloseCardinfo}>
+                <Grid alignItems="center" justifyContent="center" container >
+                    <DialogTitle>
+                        {OnSelectPokemon ? OnSelectPokemon.name : ""}
+                    </DialogTitle>
+                </Grid>
+                <DialogContent>
+                    <Grid alignItems="center" justifyContent="center" container >
+                        {
+                            OnSelectPokemon ?
+                                <img
+                                    src={OnSelectPokemon.images.large}
+                                /> : ""
+                        }
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Grid alignItems="center" justifyContent="center" container spacing={5}>
+                        <Grid item>
+                            <Button variant="contained" color="primary" onClick={() => CloseCardinfo("", "Close")}>Close</Button>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="contained" color="secondary" onClick={() => SetFavorite(OnSelectPokemon)}>SetFavorite</Button>
+                        </Grid>
+                    </Grid>
+                </DialogActions>
+            </Dialog>
             <Grid direction="row" alignItems="center" justifyContent="center" container >
                 <ImageList sx={{ height: 600, width: 800 }} cols={5} gap={10}>
                     {
                         pokemon.length !== 0 ?
                             pokemon.map((item, i) => {
                                 // Return the element. Also pass key
-                                // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
-                                // imgearray.push(j);
                                 {
                                     return (
-                                        <img height="200" src={item.images.large} onClick={() => { SetFavorite(item); }} />
+                                        <img height="200" src={item.images.large} onClick={() => {
+                                            OpenCardinfo(item);
+                                        }} />
                                     )
                                 }
-                            }) : <h1> Pleses wait some time.... </h1>
+                            }) : <FormLabel filled={true}> Pleses wait some time.... </FormLabel >
                     }
                 </ImageList >
             </Grid>
-            {/* {pokemon.map((item, index) => (
-                <img height="250" src={item ? item.images.large : ""} />
-            ))} */}
-            {/* < p > 安安.</p> */}
             <Grid direction="row" alignItems="center" justifyContent="center" container>
                 <Stack spacing={currentPage}>
-                    <Pagination count={totalPage} color="secondary" onChange={handleChange} />
+                    <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
                 </Stack>
-                {/* <Grid direction="row" alignItems="center" justifyContent="center" container spacing={5}>
-                 <Grid item>
-                     <Button variant="contained" color="secondary" onClick={() => ChangePage(-1)}>Back Page</Button>
-                 </Grid>
-                 <Grid item>
-                     <FormLabel > {currentPage} / {totalPage} </FormLabel>
-                 </Grid>
-                 <Grid item>
-                     <Button color="primary" variant="contained" onClick={() => ChangePage(1)}>Next Page</Button>
-                 </Grid> */}
             </Grid>
-
-            < h2 > Favorite Cards </h2>
-            <p>(Click to Remove)</p>
+            <Grid alignItems="center" justifyContent="center" container >
+                < h2 > Favorite Cards </h2>
+            </Grid>
             <Grid direction="row" alignItems="center" justifyContent="center" container >
                 <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5}>
                     {
                         favorite.length !== 0 ? (
                             favorite.map((item, i) => {
-                                // Return the element. Also pass key
-                                // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
-                                // imgearray.push(j);
-                                return (<img height="150" src={item.images.large} onClick={() => { RemoveFavorite(item); }} />)
+                                return (<img height="150" src={item.images.large} onClick={() => {
+                                    RemoveFavorite(item);
+                                }}
+                                />)
                             })) : <FormLabel > no favorite cards....</FormLabel>
                     }
-                </ImageList>
+                </ImageList><p>(Click to Remove)</p>
             </Grid>
         </div >
     )
