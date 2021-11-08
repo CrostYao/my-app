@@ -12,42 +12,48 @@ let OnSelectPokemon: Pokemon;
 let loading: boolean = false;
 
 const Cards = () => {
-    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
+    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;    
     const OrignApi:string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
     const [open, setOpen] = useState(false);
     const [openinfo, setOpenCardinfo] = useState(false);
-    const [types,SetTypes] = useState("");
-    const [rarities,SetRarities] = useState("");
+    const [types,SetTypes] = useState("Default");
+    const [rarities,SetRarities] = useState("Default");
     const [name,SetName] = useState("Default");
     const [Max,SetMax] = useState("*");
     const [Min,SetMin] = useState("*");
-
+    const [ optionStr,SetOption] = useState("");
+    function OnFetch(data:any){
+        console.log(data);
+        totalCount = data.totalCount;
+        currentPage = data.page;
+        totalPage = Math.ceil(totalCount / showcount);
+        poke = data.data;
+        loading = false;
+        setPokemon(pokemon => ([...poke]));
+    }
     useEffect(() => {
         loading = true;
         fetch(OrignApi, { method: "GET" })
             .then(res => res.json())
             .then(data => {
-                console.log(data);
-                totalCount = data.totalCount;
-                currentPage = data.page;
-                totalPage = totalCount / showcount;
-                totalPage = Math.round(totalPage);
-                poke = data.data;
-                loading = false;
+                OnFetch(data);
                 setPokemon(pokemon => ([...poke]));
             }).catch(e => {
                 console.error(e);
             });
     }, [])
     function setApi() {
-        apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
+        apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}${optionStr}`;
     }
+
     function ChangePage(num: number) {
         // if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
         //     return;
         currentPage = num;
+        
+        console.log(apiurl);
         setApi();
         console.log(apiurl);
         setPokemon([]);
@@ -55,10 +61,7 @@ const Cards = () => {
         fetch(apiurl, { method: "GET" })
             .then(res => res.json())
             .then(data => {
-                console.log(data);
-                poke = data.data;
-                loading = false;
-                setPokemon(pokemon => ([...poke]));
+                OnFetch(data);
             }).catch(e => {
                 console.error(e);
             });
@@ -113,31 +116,42 @@ const Cards = () => {
         let addstr="";
         if (reason === "Ok") {
             console.log("Ok");
-            if(types !== "Default"){
+            if(types !== ("Default" || "")){
+                console.log("types",types);
                 addstr += `types:${types} `
             }
-            if(rarities !== "Default"){
-                addstr += `rarities:${rarities} `
+            if(rarities !== ("Default" || "")){
+                console.log(rarities);
+                addstr += `rarity:${rarities} `
             }
             if(name!==("Default" || "")){
-                addstr += `name:${name} `
+                console.log(name);
+                addstr += `name:${name} `;
             }
-            if(Min!==("")&&Max!==("")){
-                addstr += `hp:[${Min} to ${Max}] `
+            if(Min===("*")&& Max===("*")){
+
             }
             else{
-                if(Min!==("")){
-                    addstr += `hp:[${Min} to *] `
-                }
-                if(Max!==("")){
-                    addstr += `hp:[* to ${Max}] `
+                if(Min!==("")&&Max!==("")){
+                    addstr += `hp:[${Min} to ${Max}] `
+                }else{
+                    if(Min!==("")){
+                        addstr += `hp:[${Min} to *] `
+                    }
+                    if(Max!==("")){
+                        addstr += `hp:[* to ${Max}] `
+                    }
                 }
             }
+            console.log(Max,Min);
         } else {
 
         }
-        if(addstr!== "")
-        apiurl += `q=${addstr}`
+        if(addstr !== "")
+        addstr = `&q=${addstr}`
+
+        SetOption(addstr);
+        ChangePage(1);
         // if (reason !== "backdropClick") {
         // }
         setOpen(false);
@@ -187,7 +201,7 @@ const Cards = () => {
                                     <option value={"Default"}>Default</option>
                                     <option value={"Amazing"}>Amazing</option>
                                     <option value={"Common"}>Common</option>
-                                    <option value={"LEGEND"}>LEGEND</option>
+                                    <option value={"Legend"}>Legend</option>
                                     <option value={"Promo"}>Promo</option>
                                     <option value={"Rare"}>Rare</option>
                                     <option value={"ACE"}>ACE</option>
