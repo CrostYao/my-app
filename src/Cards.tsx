@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
+import { Stack, Pagination, ImageList, ImageListItem, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
@@ -41,9 +41,9 @@ const Cards = () => {
     }, [])
 
     function ChangePage(num: number) {
-        if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
-            return;
-        currentPage += num;
+        // if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
+        //     return;
+        currentPage = num;
         setPokemon([]);
         fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`, { method: "GET" })
             .then(res => res.json())
@@ -70,50 +70,65 @@ const Cards = () => {
         console.log(favorite);
         setFavor(favorite => ([...favoritCards]));
     }
-
+    const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        ChangePage(value);
+    };
     return (
         <div>
             <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
-            <Grid direction="row" alignItems="center" justifyContent="center" container spacing={2}>
-                {
-                    pokemon.length !== 0 ?
-                        pokemon.map((item, i) => {
-                            // Return the element. Also pass key
-                            // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
-                            // imgearray.push(j);
-                            return (
-                                <Grid item>
-                                    <img height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />
-                                </Grid>
-                            )
-                        }) : <h1> Pleses wait some time.... </h1>
-                }
+            <Grid direction="row" alignItems="center" justifyContent="center" container >
+                <ImageList sx={{ height: 600, width: 800 }} cols={5} gap={10}>
+                    {
+                        pokemon.length !== 0 ?
+                            pokemon.map((item, i) => {
+                                // Return the element. Also pass key
+                                // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
+                                // imgearray.push(j);
+                                {
+                                    return (
+                                        <img height="200" src={item.images.large} onClick={() => { SetFavorite(item); }} />
+                                    )
+                                }
+                            }) : <h1> Pleses wait some time.... </h1>
+                    }
+                </ImageList >
             </Grid>
             {/* {pokemon.map((item, index) => (
                 <img height="250" src={item ? item.images.large : ""} />
             ))} */}
-            < p > 安安.</p>
-            <Grid direction="row" alignItems="center" justifyContent="center" container spacing={5}>
-                <Grid item>
-                    <Button variant="contained" color="secondary" onClick={() => ChangePage(-1)}>Back Page</Button>
-                </Grid>
-                <FormLabel > {currentPage} / {totalPage} </FormLabel>
-                <Grid item>
-                    <Button color="primary" variant="contained" onClick={() => ChangePage(1)}>Next Page</Button>
-                </Grid>
+            {/* < p > 安安.</p> */}
+            <Grid direction="row" alignItems="center" justifyContent="center" container>
+                <Stack spacing={currentPage}>
+                    <Pagination count={totalPage} color="secondary" onChange={handleChange} />
+                </Stack>
+                {/* <Grid direction="row" alignItems="center" justifyContent="center" container spacing={5}>
+                 <Grid item>
+                     <Button variant="contained" color="secondary" onClick={() => ChangePage(-1)}>Back Page</Button>
+                 </Grid>
+                 <Grid item>
+                     <FormLabel > {currentPage} / {totalPage} </FormLabel>
+                 </Grid>
+                 <Grid item>
+                     <Button color="primary" variant="contained" onClick={() => ChangePage(1)}>Next Page</Button>
+                 </Grid> */}
             </Grid>
+
             < h2 > Favorite Cards </h2>
             <p>(Click to Remove)</p>
-            {
-                favorite.length !== 0 ?
-                    favorite.map((item, i) => {
-                        // Return the element. Also pass key
-                        // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
-                        // imgearray.push(j);
-                        return (<img height="150" src={item.images.large} onClick={() => { RemoveFavorite(item); }} />)
-                    }) : <p> no favorite cards.... </p>
-            }
-        </div>
+            <Grid direction="row" alignItems="center" justifyContent="center" container >
+                <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5}>
+                    {
+                        favorite.length !== 0 ? (
+                            favorite.map((item, i) => {
+                                // Return the element. Also pass key
+                                // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
+                                // imgearray.push(j);
+                                return (<img height="150" src={item.images.large} onClick={() => { RemoveFavorite(item); }} />)
+                            })) : <FormLabel > no favorite cards....</FormLabel>
+                    }
+                </ImageList>
+            </Grid>
+        </div >
     )
 }
 
@@ -271,7 +286,7 @@ interface Foil {
 //https://api.pokemontcg.io/v2/cards?pageSize=10&q=name:Azumarill  //name
 
 //nationalPokedexNumbers:[1 TO 151] number
-//npm install @material-ui/core
+//npm install @material-ui/core@next @emotion/react @emotion/styled
 //hp:[* TO 100]
 //hp:[150 TO *]
 
