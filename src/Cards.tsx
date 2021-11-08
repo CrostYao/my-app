@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { createLogicalOr } from "typescript";
+import { Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
-let totalCount: number = 0 ;
+let totalCount: number = 0;
 let currentPage: number = 0;
 let totalPage: number = 0;
-let showcount :number =20;
+let showcount: number = 20;
 const Cards = () => {
 
     const [pokemon, setPokemon] = useState(poke);
@@ -23,7 +23,7 @@ const Cards = () => {
                 totalPage = totalCount / showcount;
                 totalPage = Math.round(totalPage);
                 poke = data.data;
-                setPokemon(pokemon =>([...poke]));
+                setPokemon(pokemon => ([...poke]));
                 // }).finally(() => {
                 //     for (let i = 0; i < totalPage; i++) {
                 //         fetch("https://api.pokemontcg.io/v2/cards?page=" + `${i + 1}`, { method: "GET" })
@@ -41,16 +41,16 @@ const Cards = () => {
     }, [])
 
     function ChangePage(num: number) {
-        if((currentPage === 1 && num === -1)||(currentPage === totalPage && num === 1))
-        return;
-        currentPage+= num;
+        if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
+            return;
+        currentPage += num;
         setPokemon([]);
         fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
                 poke = data.data;
-                setPokemon(pokemon =>([...poke]));
+                setPokemon(pokemon => ([...poke]));
             }).catch(e => {
                 console.error(e);
             });
@@ -74,20 +74,34 @@ const Cards = () => {
     return (
         <div>
             <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
-            {
-                pokemon.length !== 0 ?
-                    pokemon.map((item, i) => {
-                        // Return the element. Also pass key     
-                        // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
-                        // imgearray.push(j);
-                        return (<img height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />)
-                    }) : <h1> Pleses wait some time.... </h1>
-            }
+            <Grid direction="row" alignItems="center" justifyContent="center" container spacing={2}>
+                {
+                    pokemon.length !== 0 ?
+                        pokemon.map((item, i) => {
+                            // Return the element. Also pass key
+                            // const j = <img id={`${i}`} height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />;
+                            // imgearray.push(j);
+                            return (
+                                <Grid item>
+                                    <img height="150" src={item.images.large} onClick={() => { SetFavorite(item); }} />
+                                </Grid>
+                            )
+                        }) : <h1> Pleses wait some time.... </h1>
+                }
+            </Grid>
             {/* {pokemon.map((item, index) => (
                 <img height="250" src={item ? item.images.large : ""} />
             ))} */}
             < p > 安安.</p>
-            <button onClick={() => ChangePage(-1)}>Back Page</button><p style={{color:"black"}}>{currentPage} / {totalPage}</p> <button onClick={() => ChangePage(1)}>Next Page</button>
+            <Grid direction="row" alignItems="center" justifyContent="center" container spacing={5}>
+                <Grid item>
+                    <Button variant="contained" color="secondary" onClick={() => ChangePage(-1)}>Back Page</Button>
+                </Grid>
+                <FormLabel > {currentPage} / {totalPage} </FormLabel>
+                <Grid item>
+                    <Button color="primary" variant="contained" onClick={() => ChangePage(1)}>Next Page</Button>
+                </Grid>
+            </Grid>
             < h2 > Favorite Cards </h2>
             <p>(Click to Remove)</p>
             {
@@ -257,6 +271,7 @@ interface Foil {
 //https://api.pokemontcg.io/v2/cards?pageSize=10&q=name:Azumarill  //name
 
 //nationalPokedexNumbers:[1 TO 151] number
+//npm install @material-ui/core
 //hp:[* TO 100]
 //hp:[150 TO *]
 
