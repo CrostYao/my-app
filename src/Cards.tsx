@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
+import { stringify } from "querystring";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
@@ -12,14 +13,20 @@ let loading: boolean = false;
 
 const Cards = () => {
     let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
+    const OrignApi:string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
     const [open, setOpen] = useState(false);
     const [openinfo, setOpenCardinfo] = useState(false);
+    const [types,SetTypes] = useState("");
+    const [rarities,SetRarities] = useState("");
+    const [name,SetName] = useState("Default");
+    const [Max,SetMax] = useState("*");
+    const [Min,SetMin] = useState("*");
 
     useEffect(() => {
         loading = true;
-        fetch(apiurl, { method: "GET" })
+        fetch(OrignApi, { method: "GET" })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -72,9 +79,22 @@ const Cards = () => {
     const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
         ChangePage(value);
     };
-    const onSearchChange = (event: materialui.SelectChangeEvent<any>) => {
+    const onTypeChange = (event: materialui.SelectChangeEvent<string>) => {
+        SetTypes(event.target.value);
+    };
+    const onRaritiesChange = (event: materialui.SelectChangeEvent<string>) => {
+        SetRarities(event.target.value);
         // setAge(Number(event.target.value) || "");
     };
+    const onNameChange=(event: any)=>{
+        SetName(event.target.value);
+    }
+    const onHPMinChange=(event: any)=>{
+        SetMin(event.target.value);
+    }
+    const onHPMaxChange=(event: any)=>{
+        SetMax(event.target.value);
+    }
     function OpenCardinfo(pokemon: Pokemon) {
         OnSelectPokemon = pokemon;
         setOpenCardinfo(true);
@@ -90,11 +110,34 @@ const Cards = () => {
         setOpen(true);
     };
     const handleClose = (event: any, reason: string) => {
+        let addstr="";
         if (reason === "Ok") {
             console.log("Ok");
+            if(types !== "Default"){
+                addstr += `types:${types} `
+            }
+            if(rarities !== "Default"){
+                addstr += `rarities:${rarities} `
+            }
+            if(name!==("Default" || "")){
+                addstr += `name:${name} `
+            }
+            if(Min!==("")&&Max!==("")){
+                addstr += `hp:[${Min} to ${Max}] `
+            }
+            else{
+                if(Min!==("")){
+                    addstr += `hp:[${Min} to *] `
+                }
+                if(Max!==("")){
+                    addstr += `hp:[* to ${Max}] `
+                }
+            }
         } else {
 
         }
+        if(addstr!== "")
+        apiurl += `q=${addstr}`
         // if (reason !== "backdropClick") {
         // }
         setOpen(false);
@@ -106,43 +149,78 @@ const Cards = () => {
             </Grid>
             {/** Select Search Options */}
             <Grid alignItems="center" justifyContent="center" container  >
-                <Button onClick={handleClickOpen}>Open Search Options</Button>
+                <Button variant="contained" onClick={handleClickOpen}>Open Search Options</Button>
                 <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
-                    <DialogTitle>Options</DialogTitle>
+                    <DialogTitle>Search Options</DialogTitle>
                     <DialogContent>
                         <Box component="form" sx={{ display: "flex", flexWrap: "wrap" }}>
                             <FormControl sx={{ m: 1, minWidth: 120 }}>
-                                <InputLabel htmlFor="demo-dialog-native">Age</InputLabel>
+                                <InputLabel htmlFor="demo-dialog-native">Types(屬性)</InputLabel>
                                 <Select
                                     native
-                                    value={0}
-                                    onChange={onSearchChange}
-                                    input={<OutlinedInput label="Age" id="demo-dialog-native" />}
+                                    value={types}
+                                    onChange={onTypeChange}
+                                    input={<OutlinedInput label="Types(屬性)" id="demo-dialog-native" />}
                                 >
-                                    <option aria-label="None" value="" />
-                                    <option value={10}>Ten</option>
-                                    <option value={20}>Twenty</option>
-                                    <option value={30}>Thirty</option>
+                                    <option value={"Default"}>Default</option>
+                                    <option value={"Colorless"}>Colorless</option>
+                                    <option value={"Darkness"}>Darkness</option>
+                                    <option value={"Dragon"}>Dragon</option>
+                                    <option value={"Fairy"}>Fairy</option>
+                                    <option value={"Fighting"}>Fighting</option>
+                                    <option value={"Fire"}>Fire</option>
+                                    <option value={"Grass"}>Grass</option>
+                                    <option value={"Lightning"}>Lightning</option>
+                                    <option value={"Metal"}>Metal</option>
+                                    <option value={"Psychic"}>Psychic</option>
+                                    <option value={"Water"}>Water</option>
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ m: 1, minWidth: 120 }}>
-                                <InputLabel id="demo-dialog-select-label">Age</InputLabel>
+                                <InputLabel id="demo-dialog-select-label">Rarities(稀有度)</InputLabel>
                                 <Select
-                                    labelId="demo-dialog-select-label"
-                                    id="demo-dialog-select"
-                                    value={0}
-                                    onChange={onSearchChange}
-                                    input={<OutlinedInput label="Age" />}
+                                    native
+                                    value={rarities}
+                                    onChange={onRaritiesChange}
+                                    input={<OutlinedInput label="Rarities(稀有度)" id="demo-dialog-native" />}
                                 >
-                                    <MenuItem value="">
-                                        <em>None</em>
-                                    </MenuItem>
-                                    <MenuItem value={10}>Ten</MenuItem>
-                                    <MenuItem value={20}>Twenty</MenuItem>
-                                    <MenuItem value={30}>Thirty</MenuItem>
+                                    <option value={"Default"}>Default</option>
+                                    <option value={"Amazing"}>Amazing</option>
+                                    <option value={"Common"}>Common</option>
+                                    <option value={"LEGEND"}>LEGEND</option>
+                                    <option value={"Promo"}>Promo</option>
+                                    <option value={"Rare"}>Rare</option>
+                                    <option value={"ACE"}>ACE</option>
+                                    <option value={"BREAK"}>BREAK</option>
+                                    <option value={"Holo"}>Holo</option>
+                                    <option value={"EX"}>EX</option>
+                                    <option value={"GX"}>GX</option>
+                                    <option value={"LV.X"}>LV.X</option>
+                                    <option value={"Star"}>Star</option>
+                                    <option value={"V"}>V</option>
+                                    <option value={"VMAX"}>VMAX</option>
+                                    <option value={"Prime"}>Prime</option>
+                                    <option value={"Rainbow"}>Rainbow</option>
+                                    <option value={"Secret"}>Secret</option>
+                                    <option value={"Shining"}>Shining</option>
+                                    <option value={"Shiny"}>Shiny</option>
+                                    <option value={"Ultra"}>Ultra</option>
+                                    <option value={"Uncommon"}>Uncommon</option>
                                 </Select>
                             </FormControl>
-                        </Box>
+                            <FormControl sx={{ m: 1, minWidth: 120 }}>
+                            <TextField id="outlined-search" label="Name" type="search" defaultValue={name} onChange={onNameChange}/>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 120 }}>
+                            <TextField id="outlined-search" label="HP Min" type="search" defaultValue={Min} onChange={onHPMinChange}/>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 10 }}>
+                            <FormLabel > to</FormLabel>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 120 }}>
+                            <TextField id="outlined-search" label="Hp Max" type="search" defaultValue={Max} onChange={onHPMaxChange}/>
+                            </FormControl>
+                            </Box>
                     </DialogContent>
                     <DialogActions>
                         <Grid alignItems="center" justifyContent="center" container spacing={5}>
