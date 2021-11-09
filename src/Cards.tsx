@@ -162,13 +162,60 @@ const Cards = () => {
         setOpen(false);
     };
     return (
-        <div>
-            <Grid alignItems="center" justifyContent="center" container >
-                <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
-            </Grid>
-            {/** Select Search Options */}
-            <Grid alignItems="center" justifyContent="center" container  >
-                <Button variant="contained" onClick={handleClickOpen}>Open Search Options</Button>
+        <Box
+            component="form"
+            sx={{
+                '& .MuiTextField-root': { m: 1 },
+            }}
+        >
+            <div>
+                <Grid alignItems="center" justifyContent="center" container >
+                    <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
+                </Grid>
+                {/** Select Search Options */}
+                <Grid alignItems="center" justifyContent="center" container  >
+                    <Button variant="contained" onClick={handleClickOpen}>Open Search Options</Button>
+                </Grid>
+                <Grid direction="row" alignItems="center" justifyContent="center" container >
+                    <ImageList sx={{ height: 600, width: 800 }} cols={5} gap={10}>
+                        {
+                            pokemon.length !== 0 ?
+                                pokemon.map((item, i) => {
+                                    // Return the element. Also pass key
+                                    {
+                                        return (
+                                            <img height="200" src={item.images.large} onClick={() => {
+                                                OpenCardinfo(item, false);
+                                            }} />
+                                        )
+                                    }
+                                }) : <FormLabel filled={true}> {waitStr} </FormLabel >
+                        }
+                    </ImageList >
+                </Grid>
+                <Grid direction="row" alignItems="center" justifyContent="center" container>
+                    <Stack spacing={currentPage}>
+                        <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
+                    </Stack>
+                </Grid>
+                <Grid alignItems="center" justifyContent="center" container >
+                    < h2 > Favorite Cards </h2>
+                </Grid>
+                <Grid direction="row" alignItems="center" justifyContent="center" container >
+                    <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5}>
+                        {
+                            favorite.length !== 0 ? (
+                                favorite.map((item, i) => {
+                                    return (<img height="150" src={item.images.large} onClick={() => {
+                                        OpenCardinfo(item, true);
+                                    }}
+                                    />)
+                                })) : <FormLabel > no favorite cards....</FormLabel>
+                        }
+                    </ImageList><p>(Click to Remove)</p>
+                </Grid>
+            </div >
+            <div>
                 <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
                     <DialogTitle>Search Options</DialogTitle>
                     <DialogContent>
@@ -255,75 +302,59 @@ const Cards = () => {
                         </Grid>
                     </DialogActions>
                 </Dialog>
-            </Grid>
-            {/** Select Card Info */}
-            {/* <Grid alignItems="center" justifyContent="center" container > */}
-            <Dialog fullWidth={true} maxWidth={"xl"} disableEscapeKeyDown open={openinfo} onClose={CloseCardinfo}>
-                <Grid alignItems="center" justifyContent="center" container >
-                    <DialogTitle>
-                        {OnSelectPokemon ? OnSelectPokemon.name : ""}
-                    </DialogTitle>
-                </Grid>
-                <DialogContent>
+            </div>
+            <div>
+                {/** Select Card Info */}
+                {/* <Grid alignItems="center" justifyContent="center" container > */}
+                <Dialog fullWidth={true} maxWidth={"xl"} disableEscapeKeyDown open={openinfo} onClose={CloseCardinfo}>
                     <Grid alignItems="center" justifyContent="center" container >
-                        {
-                            OnSelectPokemon ?
-                                <img
-                                    src={OnSelectPokemon.images.large}
-                                /> : ""
-                        }
+                        <DialogTitle>
+                            {OnSelectPokemon ? OnSelectPokemon.name : ""}
+                        </DialogTitle>
                     </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Grid alignItems="center" justifyContent="center" container spacing={5}>
-                        <Grid item>
-                            <Button variant="contained" color="primary" onClick={() => CloseCardinfo("", "Close")}>Close</Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="contained" color="secondary" onClick={() => { isFavor ? RemoveFavorite(OnSelectPokemon) : SetFavorite(OnSelectPokemon) }}>{FavorStr}</Button>
-                        </Grid>
-                    </Grid>
-                </DialogActions>
-            </Dialog>
-            <Grid direction="row" alignItems="center" justifyContent="center" container >
-                <ImageList sx={{ height: 600, width: 800 }} cols={5} gap={10}>
-                    {
-                        pokemon.length !== 0 ?
-                            pokemon.map((item, i) => {
-                                // Return the element. Also pass key
+                    <DialogContent>
+                        <Grid alignItems="center" justifyContent="center" container spacing={5}>
+                            <Grid item>
                                 {
-                                    return (
-                                        <img height="200" src={item.images.large} onClick={() => {
-                                            OpenCardinfo(item, false);
-                                        }} />
-                                    )
+                                    OnSelectPokemon ?
+                                        <img
+                                            src={OnSelectPokemon.images.large}
+                                        /> : ""
                                 }
-                            }) : <FormLabel filled={true}> {waitStr} </FormLabel >
-                    }
-                </ImageList >
-            </Grid>
-            <Grid direction="row" alignItems="center" justifyContent="center" container>
-                <Stack spacing={currentPage}>
-                    <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
-                </Stack>
-            </Grid>
-            <Grid alignItems="center" justifyContent="center" container >
-                < h2 > Favorite Cards </h2>
-            </Grid>
-            <Grid direction="row" alignItems="center" justifyContent="center" container >
-                <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5}>
-                    {
-                        favorite.length !== 0 ? (
-                            favorite.map((item, i) => {
-                                return (<img height="150" src={item.images.large} onClick={() => {
-                                    OpenCardinfo(item, true);
-                                }}
-                                />)
-                            })) : <FormLabel > no favorite cards....</FormLabel>
-                    }
-                </ImageList><p>(Click to Remove)</p>
-            </Grid>
-        </div >
+                            </Grid>
+                        </Grid>
+                        <Grid alignItems="center" justifyContent="center" container>
+                            <Grid item>
+                                <FormLabel style={{ color: "Blue", verticalAlign: "middle" }}> Series : </FormLabel>
+                                <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.set.series : ""} </FormLabel >
+                            </Grid>
+                        </Grid>
+                        <Grid alignItems="center" justifyContent="center" container>
+                            <Grid item>
+                                <FormLabel style={{ color: "Green", verticalAlign: "middle" }}> Release Date :</FormLabel>
+                                <FormLabel style={{ verticalAlign: "middle" }} >{OnSelectPokemon ? OnSelectPokemon.set.releaseDate : ""} </FormLabel >
+                            </Grid>
+                        </Grid>
+                        <Grid alignItems="center" justifyContent="center" container>
+                            <Grid item>
+                                <FormLabel style={{ color: "red", verticalAlign: "middle" }}> Rarity : </FormLabel>
+                                <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.rarity : ""} </FormLabel >
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Grid alignItems="center" justifyContent="center" container spacing={5}>
+                            <Grid item>
+                                <Button variant="contained" color="primary" onClick={() => CloseCardinfo("", "Close")}>Close</Button>
+                            </Grid>
+                            <Grid item>
+                                <Button variant="contained" color="secondary" onClick={() => { isFavor ? RemoveFavorite(OnSelectPokemon) : SetFavorite(OnSelectPokemon) }}>{FavorStr}</Button>
+                            </Grid>
+                        </Grid>
+                    </DialogActions>
+                </Dialog>
+            </div>
+        </Box >
     )
 }
 
