@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
 import { stringify } from "querystring";
+import { setSyntheticLeadingComments } from "typescript";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
@@ -27,6 +28,9 @@ const Cards = () => {
     const [Min, SetMin] = useState("*");
     const [waitStr, SetWaitingStr] = useState("Loading, Pleses wait some time....");
     const [FavorStr, SetFavorStr] = useState("Set Favorite");
+    const [year, setYear] = useState(0);
+    const [month, setMonth] = useState(0);
+    const [day, setDay] = useState(0);
 
     function OnFetch(data: any) {
         SetWaitingStr("Loading, Pleses wait some time....");
@@ -55,12 +59,13 @@ const Cards = () => {
 
     function setApi() {
         apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}${optionStr}`;
-        console.log(apiurl, showcount, currentPage, optionStr);
+        console.log("Search Api : " ,apiurl);
     }
 
     function ChangePage(num: number) {
         // if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
         //     return;
+        SetWaitingStr("Loading, Pleses wait some time....");
         currentPage = num;
         setApi();
         setPokemon([]);
@@ -101,6 +106,25 @@ const Cards = () => {
     const onHPMaxChange = (event: any) => {
         SetMax(event.target.value);
     }
+    const onYearChange = (event: any) => {
+        setYear(event.target.value);
+    }
+    const onMonthChange = (event: any) => {
+        setMonth(event.target.value);
+    }
+    const onDayChange = (event: any) => {
+        setDay(event.target.value);
+    }
+    const onClickRestSearch=()=>{
+        SetTypes(types=>"Default");
+        SetRarities("Default");
+        SetName("Default");
+        SetMin("*");
+        SetMax("*");
+        setYear(0);
+        setMonth(0);
+        setDay(day=>0);
+    }
     function OpenCardinfo(pokemon: Pokemon, isFavorite: boolean) {
         OnSelectPokemon = pokemon;
         isFavor = isFavorite;
@@ -122,10 +146,10 @@ const Cards = () => {
         if (reason === "Ok") {
             console.log("Ok");
             if (types !== ("Default" || "")) {
-                addstr += `types:${types} `
+                addstr += `types:${types} `;
             }
             if (rarities !== ("Default" || "")) {
-                addstr += `rarity:${rarities} `
+                addstr += `rarity:${rarities} `;
             }
             if (name !== ("Default" || "")) {
                 addstr += `name:*${name}* `;
@@ -136,14 +160,21 @@ const Cards = () => {
             else {
                 if (Min !== ("") && Max !== ("")) {
                     if (Number(Min) && Number(Max)) {
-                        addstr += `hp:[${Min} to ${Max}] `
+                        addstr += `hp:[${Min} to ${Max}] `;
                     } else {
                         if (Number(Min)) {
-                            addstr += `hp:[${Min} to *] `
+                            addstr += `hp:[${Min} to *] `;
                         }
                         if (Number(Max)) {
-                            addstr += `hp:[* to ${Max}] `
+                            addstr += `hp:[* to ${Max}] `;
                         }
+                    }
+                }
+            }
+            if(year > 1000){
+                if(month>0 && month < 13){
+                    if(day>0 && day <31){
+                        addstr += `set.releaseDate:"${year}/${String("0" + month).slice(-2)}/${String("0" + day).slice(-2)}"`;
                     }
                 }
             }
@@ -194,9 +225,8 @@ const Cards = () => {
                     </ImageList >
                 </Grid>
                 <Grid direction="row" alignItems="center" justifyContent="center" container>
-                    <Stack spacing={currentPage}>
                         <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
-                    </Stack>
+                    <Button variant="contained" onClick={()=>{currentPage=10}}>jumpto10</Button>
                 </Grid>
                 <Grid alignItems="center" justifyContent="center" container >
                     < h2 > Favorite Cards </h2>
@@ -216,17 +246,20 @@ const Cards = () => {
                 </Grid>
             </div >
             <div>
+                {/* Search Info */}
                 <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
                     <DialogTitle>Search Options</DialogTitle>
                     <DialogContent>
                         <Box component="form" sx={{ display: "flex", flexWrap: "wrap" }}>
+                        <Grid direction="row" alignItems="center" justifyContent="center" container >
+                        <Grid item>
                             <FormControl sx={{ m: 1, minWidth: 120 }}>
-                                <InputLabel htmlFor="demo-dialog-native">Types(屬性)</InputLabel>
+                                <InputLabel>Types(屬性)</InputLabel>
                                 <Select
                                     native
                                     value={types}
                                     onChange={onTypeChange}
-                                    input={<OutlinedInput label="Types(屬性)" id="demo-dialog-native" />}
+                                    input={<OutlinedInput label="Types(屬性)"/>}
                                 >
                                     <option value={"Default"}>Default</option>
                                     <option value={"Colorless"}>Colorless</option>
@@ -276,19 +309,34 @@ const Cards = () => {
                                     <option value={"Uncommon"}>Uncommon</option>
                                 </Select>
                             </FormControl>
-
+                            </Grid>
                             <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 200 }}>
-                                <TextField id="outlined-search" label="Name" type="search" defaultValue={name} onChange={onNameChange} />
+                                <TextField label="Name" type="search" value={name} onChange={onNameChange} />
                             </FormControl>
+                            <Grid item>
+                            {/* <Grid direction="row" alignItems="center" justifyContent="center" container > */}
                             <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
-                                <TextField id="outlined-search" label="HP Min" type="search" defaultValue={Min} onChange={onHPMinChange} />
+                                <TextField label="HP Min" type="search" value={Min} onChange={onHPMinChange} />
                             </FormControl>
                             <FormControl sx={{ m: 1, minWidth: 10 }}>
-                                <FormLabel > to</FormLabel>
+                            <FormLabel > to</FormLabel>
                             </FormControl>
                             <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
-                                <TextField id="outlined-search" label="Hp Max" type="search" defaultValue={Max} onChange={onHPMaxChange} />
+                                <TextField label="Hp Max" type="search"  value={Max} onChange={onHPMaxChange} />
                             </FormControl>
+                            </Grid>
+                            <Grid direction="row" alignItems="center" justifyContent="center" container >                            <FormLabel style={{ color: "Blue"}} >Release Date:</FormLabel>
+                            <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 200 }}>
+                            <TextField  label="year" type="number" InputLabelProps={{ shrink: true, }}  value={year} onChange={onYearChange} />
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 100 }}>
+                            <TextField  label="month" type="number" InputLabelProps={{ shrink: true, }} value={month} onChange={onMonthChange} />
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 100 }}>
+                            <TextField  label="day" type="number" InputLabelProps={{ shrink: true, }} value={day} onChange={onDayChange} />
+                            </FormControl>
+                            </Grid>
+                            </Grid>
                         </Box>
                     </DialogContent>
                     <DialogActions>
@@ -298,6 +346,9 @@ const Cards = () => {
                             </Grid>
                             <Grid item>
                                 <Button variant="contained" color="secondary" onClick={() => handleClose("", "Ok")}>Ok</Button>
+                            </Grid>
+                            <Grid item>
+                                <Button variant="contained" color="warning" onClick={() => onClickRestSearch()}>Reset</Button>
                             </Grid>
                         </Grid>
                     </DialogActions>
@@ -324,22 +375,20 @@ const Cards = () => {
                             </Grid>
                         </Grid>
                         <Grid alignItems="center" justifyContent="center" container>
+                        <Stack spacing={3}>
                             <Grid item>
                                 <FormLabel style={{ color: "Blue", verticalAlign: "middle" }}> Series : </FormLabel>
                                 <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.set.series : ""} </FormLabel >
                             </Grid>
-                        </Grid>
-                        <Grid alignItems="center" justifyContent="center" container>
                             <Grid item>
                                 <FormLabel style={{ color: "Green", verticalAlign: "middle" }}> Release Date :</FormLabel>
                                 <FormLabel style={{ verticalAlign: "middle" }} >{OnSelectPokemon ? OnSelectPokemon.set.releaseDate : ""} </FormLabel >
                             </Grid>
-                        </Grid>
-                        <Grid alignItems="center" justifyContent="center" container>
                             <Grid item>
                                 <FormLabel style={{ color: "red", verticalAlign: "middle" }}> Rarity : </FormLabel>
                                 <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.rarity : ""} </FormLabel >
                             </Grid>
+                            </Stack>
                         </Grid>
                     </DialogContent>
                     <DialogActions>
@@ -446,27 +495,6 @@ interface Foil {
     market: number;
     directLow: number;
 }
-
-//https://pjchender.dev/react/note-react-with-ts/#children-as-props
-// # Get all cards
-// curl "https://api.pokemontcg.io/v2/cards"
-
-// # Get a single page of cards
-// curl "https://api.pokemontcg.io/v2/cards?page=1&pageSize=250"
-
-// # Filter cards via query parameters
-// curl "https://api.pokemontcg.io/v2/cards?q=set.name:generations subtypes:mega"
-
-// # Order by release date (descending)
-// curl "https://api.pokemontcg.io/v2/cards?q=subtypes:mega&orderBy=-set.releaseDate"
-
-
-//https://api.pokemontcg.io/v2/cards?pageSize=10&q=types:water     //type
-//https://api.pokemontcg.io/v2/cards?pageSize=10&q=name:Azumarill  //name
-
-//nationalPokedexNumbers:[1 TO 151] number
-//npm install @material-ui/core@next @emotion/react @emotion/styled
-//hp:[* TO 100]
-//hp:[150 TO *]
+//https://api.pokemontcg.io/v2/cards?q=set.releaseDate:"2021/10/08"
 
 
