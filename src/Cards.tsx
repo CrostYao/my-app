@@ -10,21 +10,26 @@ let totalPage: number = 0;
 let showcount: number = 20;
 let OnSelectPokemon: Pokemon;
 let loading: boolean = false;
+let optionStr = "";
+let isFavor: boolean = false;
 
 const Cards = () => {
-    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;    
-    const OrignApi:string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
+    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
+    const OrignApi: string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
     const [open, setOpen] = useState(false);
     const [openinfo, setOpenCardinfo] = useState(false);
-    const [types,SetTypes] = useState("Default");
-    const [rarities,SetRarities] = useState("Default");
-    const [name,SetName] = useState("Default");
-    const [Max,SetMax] = useState("*");
-    const [Min,SetMin] = useState("*");
-    const [ optionStr,SetOption] = useState("");
-    function OnFetch(data:any){
+    const [types, SetTypes] = useState("Default");
+    const [rarities, SetRarities] = useState("Default");
+    const [name, SetName] = useState("Default");
+    const [Max, SetMax] = useState("*");
+    const [Min, SetMin] = useState("*");
+    const [waitStr, SetWaitingStr] = useState("Loading, Pleses wait some time....");
+    const [FavorStr, SetFavorStr] = useState("Set Favorite");
+
+    function OnFetch(data: any) {
+        SetWaitingStr("Loading, Pleses wait some time....");
         console.log(data);
         totalCount = data.totalCount;
         currentPage = data.page;
@@ -32,6 +37,9 @@ const Cards = () => {
         poke = data.data;
         loading = false;
         setPokemon(pokemon => ([...poke]));
+        if (poke.length === 0) {
+            SetWaitingStr("No Result");
+        }
     }
     useEffect(() => {
         loading = true;
@@ -44,18 +52,17 @@ const Cards = () => {
                 console.error(e);
             });
     }, [])
+
     function setApi() {
         apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}${optionStr}`;
+        console.log(apiurl, showcount, currentPage, optionStr);
     }
 
     function ChangePage(num: number) {
         // if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
         //     return;
         currentPage = num;
-        
-        console.log(apiurl);
         setApi();
-        console.log(apiurl);
         setPokemon([]);
         loading = true;
         fetch(apiurl, { method: "GET" })
@@ -69,14 +76,10 @@ const Cards = () => {
     function SetFavorite(pokemon: Pokemon) {
         if (favoritCards.indexOf(pokemon) === -1)
             favoritCards.push(pokemon);
-        console.log(favoritCards);
-        console.log(favorite);
         setFavor(favorite => ([...favoritCards]));
     }
     function RemoveFavorite(pokemon: Pokemon) {
         favoritCards.splice(favoritCards.indexOf(pokemon), 1);
-        console.log(favoritCards);
-        console.log(favorite);
         setFavor(favorite => ([...favoritCards]));
     }
     const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -89,17 +92,19 @@ const Cards = () => {
         SetRarities(event.target.value);
         // setAge(Number(event.target.value) || "");
     };
-    const onNameChange=(event: any)=>{
+    const onNameChange = (event: any) => {
         SetName(event.target.value);
     }
-    const onHPMinChange=(event: any)=>{
+    const onHPMinChange = (event: any) => {
         SetMin(event.target.value);
     }
-    const onHPMaxChange=(event: any)=>{
+    const onHPMaxChange = (event: any) => {
         SetMax(event.target.value);
     }
-    function OpenCardinfo(pokemon: Pokemon) {
+    function OpenCardinfo(pokemon: Pokemon, isFavorite: boolean) {
         OnSelectPokemon = pokemon;
+        isFavor = isFavorite;
+        isFavorite ? SetFavorStr("Remove Favorite") : SetFavorStr("Set Favorite");
         setOpenCardinfo(true);
     }
     function CloseCardinfo(event: any, reason: string) {
@@ -113,47 +118,47 @@ const Cards = () => {
         setOpen(true);
     };
     const handleClose = (event: any, reason: string) => {
-        let addstr="";
+        let addstr = "";
         if (reason === "Ok") {
             console.log("Ok");
-            if(types !== ("Default" || "")){
-                console.log("types",types);
+            if (types !== ("Default" || "")) {
                 addstr += `types:${types} `
             }
-            if(rarities !== ("Default" || "")){
-                console.log(rarities);
+            if (rarities !== ("Default" || "")) {
                 addstr += `rarity:${rarities} `
             }
-            if(name!==("Default" || "")){
-                console.log(name);
-                addstr += `name:${name} `;
+            if (name !== ("Default" || "")) {
+                addstr += `name:*${name}* `;
             }
-            if(Min===("*")&& Max===("*")){
+            if (Min === ("*") && Max === ("*")) {
 
             }
-            else{
-                if(Min!==("")&&Max!==("")){
-                    addstr += `hp:[${Min} to ${Max}] `
-                }else{
-                    if(Min!==("")){
-                        addstr += `hp:[${Min} to *] `
-                    }
-                    if(Max!==("")){
-                        addstr += `hp:[* to ${Max}] `
+            else {
+                if (Min !== ("") && Max !== ("")) {
+                    if (Number(Min) && Number(Max)) {
+                        addstr += `hp:[${Min} to ${Max}] `
+                    } else {
+                        if (Number(Min)) {
+                            addstr += `hp:[${Min} to *] `
+                        }
+                        if (Number(Max)) {
+                            addstr += `hp:[* to ${Max}] `
+                        }
                     }
                 }
             }
-            console.log(Max,Min);
-        } else {
-
+            if (addstr !== "") {
+                optionStr = `&q=${addstr}`;
+            } else {
+                optionStr = "";
+            }
+            // optionStr = `&sets&q=set.releaseDate:2009/02/11`;
+            // console.log(Date.parse("2009/02/11"));
+            ChangePage(1);
         }
-        if(addstr !== "")
-        addstr = `&q=${addstr}`
-
-        SetOption(addstr);
-        ChangePage(1);
         // if (reason !== "backdropClick") {
         // }
+
         setOpen(false);
     };
     return (
@@ -204,37 +209,40 @@ const Cards = () => {
                                     <option value={"Legend"}>Legend</option>
                                     <option value={"Promo"}>Promo</option>
                                     <option value={"Rare"}>Rare</option>
-                                    <option value={"ACE"}>ACE</option>
-                                    <option value={"BREAK"}>BREAK</option>
-                                    <option value={"Holo"}>Holo</option>
-                                    <option value={"EX"}>EX</option>
-                                    <option value={"GX"}>GX</option>
-                                    <option value={"LV.X"}>LV.X</option>
-                                    <option value={"Star"}>Star</option>
-                                    <option value={"V"}>V</option>
-                                    <option value={"VMAX"}>VMAX</option>
-                                    <option value={"Prime"}>Prime</option>
-                                    <option value={"Rainbow"}>Rainbow</option>
-                                    <option value={"Secret"}>Secret</option>
-                                    <option value={"Shining"}>Shining</option>
-                                    <option value={"Shiny"}>Shiny</option>
-                                    <option value={"Ultra"}>Ultra</option>
+                                    <option value={"\"Rare ACE\""}>Rare ACE</option>
+                                    <option value={"\"Rare BREAK\""}>Rare BREAK</option>
+                                    <option value={"\"Rare Holo\""}>Rare Holo</option>
+                                    <option value={"\"Rare Holo EX\""}>Rare Holo EX</option>
+                                    <option value={"\"Rare Holo GX\""}>Rare Holo GX</option>
+                                    <option value={"\"Rare Holo LV.X\""}>Rare Holo LV.X</option>
+                                    <option value={"\"Rare Holo Star\""}>Rare Holo Star</option>
+                                    <option value={"\"Rare Holo V\""}>Rare Holo V</option>
+                                    <option value={"\"Rare Holo VMAX\""}>Rare Holo VMAX</option>
+                                    <option value={"\"Rare Prime\""}>Rare Prime</option>
+                                    <option value={"\"Rare Prism Star\""}>Rare Prism Star</option>
+                                    <option value={"\"Rare Rainbow\""}>Rare Rainbow</option>
+                                    <option value={"\"Rare Secret\""}>Rare Secret</option>
+                                    <option value={"\"Rare Shining\""}>Rare Shining</option>
+                                    <option value={"\"Rare Shiny\""}>Rare Shiny</option>
+                                    <option value={"\"Rare Shiny GX\""}>Rare Shiny GX</option>
+                                    <option value={"\"Rare Ultra\""}>Rare Ultra</option>
                                     <option value={"Uncommon"}>Uncommon</option>
                                 </Select>
                             </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 120 }}>
-                            <TextField id="outlined-search" label="Name" type="search" defaultValue={name} onChange={onNameChange}/>
+
+                            <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 200 }}>
+                                <TextField id="outlined-search" label="Name" type="search" defaultValue={name} onChange={onNameChange} />
                             </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 120 }}>
-                            <TextField id="outlined-search" label="HP Min" type="search" defaultValue={Min} onChange={onHPMinChange}/>
+                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
+                                <TextField id="outlined-search" label="HP Min" type="search" defaultValue={Min} onChange={onHPMinChange} />
                             </FormControl>
                             <FormControl sx={{ m: 1, minWidth: 10 }}>
-                            <FormLabel > to</FormLabel>
+                                <FormLabel > to</FormLabel>
                             </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 120 }}>
-                            <TextField id="outlined-search" label="Hp Max" type="search" defaultValue={Max} onChange={onHPMaxChange}/>
+                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
+                                <TextField id="outlined-search" label="Hp Max" type="search" defaultValue={Max} onChange={onHPMaxChange} />
                             </FormControl>
-                            </Box>
+                        </Box>
                     </DialogContent>
                     <DialogActions>
                         <Grid alignItems="center" justifyContent="center" container spacing={5}>
@@ -272,7 +280,7 @@ const Cards = () => {
                             <Button variant="contained" color="primary" onClick={() => CloseCardinfo("", "Close")}>Close</Button>
                         </Grid>
                         <Grid item>
-                            <Button variant="contained" color="secondary" onClick={() => SetFavorite(OnSelectPokemon)}>SetFavorite</Button>
+                            <Button variant="contained" color="secondary" onClick={() => { isFavor ? RemoveFavorite(OnSelectPokemon) : SetFavorite(OnSelectPokemon) }}>{FavorStr}</Button>
                         </Grid>
                     </Grid>
                 </DialogActions>
@@ -286,11 +294,11 @@ const Cards = () => {
                                 {
                                     return (
                                         <img height="200" src={item.images.large} onClick={() => {
-                                            OpenCardinfo(item);
+                                            OpenCardinfo(item, false);
                                         }} />
                                     )
                                 }
-                            }) : <FormLabel filled={true}> Pleses wait some time.... </FormLabel >
+                            }) : <FormLabel filled={true}> {waitStr} </FormLabel >
                     }
                 </ImageList >
             </Grid>
@@ -308,7 +316,7 @@ const Cards = () => {
                         favorite.length !== 0 ? (
                             favorite.map((item, i) => {
                                 return (<img height="150" src={item.images.large} onClick={() => {
-                                    RemoveFavorite(item);
+                                    OpenCardinfo(item, true);
                                 }}
                                 />)
                             })) : <FormLabel > no favorite cards....</FormLabel>
@@ -326,6 +334,7 @@ export interface Pokemon {
     name: string;
     supertype: string;
     sutypes: [];
+    level: number;
     hp: number;
     types: [];
     evolvesFrom: string;
@@ -406,55 +415,7 @@ interface Foil {
     market: number;
     directLow: number;
 }
-// {"https://api.pokemontcg.io/v2/types"
-//     "data": [
-//       "Colorless",
-//       "Darkness",
-//       "Dragon",
-//       "Fairy",
-//       "Fighting",
-//       "Fire",
-//       "Grass",
-//       "Lightning",
-//       "Metal",
-//       "Psychic",
-//       "Water"
-//     ]
-//   }
-// {https://api.pokemontcg.io/v2/supertypes
-//     "data": [
-//       "Energy",
-//       "Pokémon",
-//       "Trainer"
-//     ]
-//   }
-// {"https://api.pokemontcg.io/v2/rarities"
-//     "data": [
-//         "Amazing",
-//         "Common",
-//         "LEGEND",
-//         "Promo",
-//         "Rare",
-//         "ACE",
-//         "BREAK",
-//         "Holo",
-//         "Holo EX",
-//         "Holo GX",
-//         "Holo LV.X",
-//         "Holo Star",
-//         "Holo V",
-//         "Holo VMAX",
-//         "Prime",
-//         "Prism Star",
-//         "Rainbow",
-//         "Secret",
-//         "Shining",
-//         "Shiny",
-//         "Shiny GX",
-//         "Ultra",
-//         "Uncommon"
-//     ]
-//   }
+
 //https://pjchender.dev/react/note-react-with-ts/#children-as-props
 // # Get all cards
 // curl "https://api.pokemontcg.io/v2/cards"
