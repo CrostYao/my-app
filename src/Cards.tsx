@@ -4,16 +4,16 @@ import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, Dialog
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
 let totalCount: number = 0;
-let currentPage: number = 1;
+let page: number = 1;
 let totalPage: number = 0;
 let showcount: number = 20;
 let OnSelectPokemon: Pokemon;
 let loading: boolean = false;
 let optionStr = "";
 let isFavor: boolean = false;
+// let pageArray: number[] = [];
 
 const Cards = () => {
-    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}`;
     const OrignApi: string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
@@ -31,16 +31,27 @@ const Cards = () => {
     const [day, setDay] = useState(0);
     const [sortoption, setSort] = useState("Default");
     const [reverse, setReverse] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageArray, setPageArray] = useState([0]);
+    const [selectPage, setSelectPage] = useState(1);
+
+
+    let apiurl: string = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${page}`;
 
     function OnFetch(data: any) {
         SetWaitingStr("Loading, Pleses wait some time....");
         console.log(data);
         totalCount = data.totalCount;
-        currentPage = data.page;
+        setCurrentPage(data.page);
         totalPage = Math.ceil(totalCount / showcount);
         poke = data.data;
         loading = false;
         setPokemon(pokemon => ([...poke]));
+        let arr: number[] = [];
+        for (let i = 0; i < totalPage; i++) {
+            arr.push(i + 1);
+        }
+        setPageArray(pageArray => ([...arr]));
         if (poke.length === 0) {
             SetWaitingStr("No Result");
         }
@@ -58,7 +69,7 @@ const Cards = () => {
     }, [])
 
     function setApi() {
-        apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}${optionStr}`;
+        apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${page}${optionStr}`;
         console.log("Search Api : ", apiurl);
     }
 
@@ -66,10 +77,13 @@ const Cards = () => {
         // if ((currentPage === 1 && num === -1) || (currentPage === totalPage && num === 1))
         //     return;
         SetWaitingStr("Loading, Pleses wait some time....");
-        currentPage = num;
+        setCurrentPage(num);
+        page = num;
+        // console.log(page, currentPage, num);
         setApi();
         setPokemon([]);
         loading = true;
+        setSelectPage(selectPage => num);
         fetch(apiurl, { method: "GET" })
             .then(res => res.json())
             .then(data => {
@@ -128,7 +142,7 @@ const Cards = () => {
         setDay(day => 0);
     }
     function OpenCardinfo(pokemon: Pokemon, isFavorite: boolean) {
-        console.log(sortoption);
+        // console.log(sortoption);
         OnSelectPokemon = pokemon;
         isFavor = isFavorite;
         isFavorite ? SetFavorStr("Remove Favorite") : SetFavorStr("Set Favorite");
@@ -147,7 +161,7 @@ const Cards = () => {
     const handleClose = (event: any, reason: string) => {
         let addstr = "";
         if (reason === "Ok") {
-            console.log("Ok");
+            // console.log("Ok");
             if (types !== ("Default" || "")) {
                 addstr += `types:${types} `;
             }
@@ -221,9 +235,9 @@ const Cards = () => {
                                     // Return the element. Also pass key
                                     {
                                         return (
-                                            <img height="200" src={item.images.large} onClick={() => {
+                                            item.images ? <img height="200" src={item.images.large} onClick={() => {
                                                 OpenCardinfo(item, false);
-                                            }} />
+                                            }} /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
                                         )
                                     }
                                 }) : <FormLabel filled={true}> {waitStr} </FormLabel >
@@ -231,8 +245,26 @@ const Cards = () => {
                     </ImageList >
                 </Grid>
                 <Grid direction="row" alignItems="center" justifyContent="center" container>
-                    <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
-                    <Button variant="contained" onClick={() => { currentPage = 10 }}>jumpto10</Button>
+                    <Pagination count={totalPage} color="secondary" onChange={handleChange} page={currentPage} disabled={loading} />
+                    <FormControl sx={{ m: 1, minWidth: 100 }}>
+                        <InputLabel>Jump to</InputLabel>
+                        <Select
+                            native
+                            value={selectPage.toString()}
+                            onChange={((event: materialui.SelectChangeEvent<string>, child: React.ReactNode) => { ChangePage(Number(event.target.value)); })}
+                            label={"Jump to"}
+                        >
+                            {
+                                pageArray.map((num, arr) => {
+                                    {
+                                        return (
+                                            <option value={num}>{num}</option>
+                                        )
+                                    }
+                                })
+                            }
+                        </Select>
+                    </FormControl>
                 </Grid>
                 <Grid alignItems="center" justifyContent="center" container >
                     < h2 > Favorite Cards </h2>
@@ -242,10 +274,13 @@ const Cards = () => {
                         {
                             favorite.length !== 0 ? (
                                 favorite.map((item, i) => {
-                                    return (<img height="150" src={item.images.large} onClick={() => {
-                                        OpenCardinfo(item, true);
-                                    }}
-                                    />)
+                                    return (
+                                        item.images ?
+                                            <img height="150" src={item.images.large} onClick={() => {
+                                                OpenCardinfo(item, true);
+                                            }}
+                                            /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
+                                    )
                                 })) : <FormLabel > no favorite cards....</FormLabel>
                         }
                     </ImageList><p>(Click to Remove)</p>
@@ -331,7 +366,8 @@ const Cards = () => {
                                         <TextField label="Hp Max" type="search" value={Max} onChange={onHPMaxChange} />
                                     </FormControl>
                                 </Grid>
-                                <Grid direction="row" alignItems="center" justifyContent="center" container >                            <FormLabel style={{ color: "Blue" }} >Release Date:</FormLabel>
+                                <Grid direction="row" alignItems="center" justifyContent="center" container >
+                                    <FormLabel style={{ color: "Blue" }} >Release Date:</FormLabel>
                                     <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 150 }}>
                                         <TextField label="year" type="number" InputLabelProps={{ shrink: true, }} value={year} onChange={onYearChange} />
                                     </FormControl>
@@ -346,14 +382,14 @@ const Cards = () => {
                         </Box>
                         <Grid alignItems="center" justifyContent="center" container spacing={3} >
                             <Grid item>
-                                <FormControlLabel control={<Switch checked={reverse} onChange={(event: React.SyntheticEvent<Element, Event>, checked: boolean) => { setReverse(checked); }} />} label="Reverse" />
+                                <FormControlLabel disabled={sortoption === "Default"} control={<Switch checked={reverse} onChange={(event: React.SyntheticEvent<Element, Event>, checked: boolean) => { setReverse(checked); }} />} label="Reverse" />
                                 <FormLabel style={{ color: "orchid", verticalAlign: "middle", fontWeight: 100 }}> sort by : </FormLabel>
                             </Grid>
                             <Grid item>
                                 <RadioGroup row aria-label="gender" value={sortoption} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setSort(event.target.value) }}>
                                     <FormControlLabel value="Default" control={<Radio />} label="Default" />
                                     <FormControlLabel value="name" control={<Radio />} label="Name" />
-                                    <FormControlLabel value="rarities" control={<Radio />} label="Rarities" />
+                                    <FormControlLabel value="rarity" control={<Radio />} label="Rarities" />
                                     <FormControlLabel value="types" control={<Radio />} label="Type" />
                                     <FormControlLabel value="set.releaseDate" control={<Radio />} label="Releas Date" />
                                 </RadioGroup>
@@ -516,6 +552,3 @@ interface Foil {
     market: number;
     directLow: number;
 }
-//https://api.pokemontcg.io/v2/cards?q=set.releaseDate:"2021/10/08"
-
-
