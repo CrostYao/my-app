@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme, RadioGroup, Radio, Checkbox } from "@material-ui/core";
+// import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme, RadioGroup, Radio, Checkbox } from "@material-ui/core";
+import materialui, { Stack, Pagination, ImageList, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, FormControl, FormControlLabel, FormLabel, Grid, InputLabel, Select, Switch, TextField, RadioGroup, Radio } from "@material-ui/core";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
@@ -11,10 +12,10 @@ let OnSelectPokemon: Pokemon;
 let loading: boolean = false;
 let optionStr = "";
 let isFavor: boolean = false;
+const OrignApi: string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
 // let pageArray: number[] = [];
 
 const Cards = () => {
-    const OrignApi: string = `https://api.pokemontcg.io/v2/cards?pageSize=20&page=1`
     const [pokemon, setPokemon] = useState(poke);
     const [favorite, setFavor] = useState(favoritCards);
     const [open, setOpen] = useState(false);
@@ -235,12 +236,14 @@ const Cards = () => {
                                     // Return the element. Also pass key
                                     {
                                         return (
-                                            item.images ? <img height="200" src={item.images.large} onClick={() => {
+                                            item.images ? <img key={item.id} height="200" src={item.images.large} onClick={() => {
                                                 OpenCardinfo(item, false);
-                                            }} /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
+                                            }} alt="description" /> :
+                                                <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
                                         )
                                     }
-                                }) : <FormLabel filled={true}> {waitStr} </FormLabel >
+                                }) :
+                                <FormLabel > {waitStr} </FormLabel >
                         }
                     </ImageList >
                 </Grid>
@@ -258,7 +261,7 @@ const Cards = () => {
                                 pageArray.map((num, arr) => {
                                     {
                                         return (
-                                            <option value={num}>{num}</option>
+                                            <option key={num} value={num}>{num}</option>
                                         )
                                     }
                                 })
@@ -269,6 +272,9 @@ const Cards = () => {
                 <Grid alignItems="center" justifyContent="center" container >
                     < h2 > Favorite Cards </h2>
                 </Grid>
+                <Grid alignItems="center" justifyContent="center" container >
+                    <p>(Click to Check or Remove)</p>
+                </Grid>
                 <Grid direction="row" alignItems="center" justifyContent="center" container >
                     <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5}>
                         {
@@ -276,14 +282,14 @@ const Cards = () => {
                                 favorite.map((item, i) => {
                                     return (
                                         item.images ?
-                                            <img height="150" src={item.images.large} onClick={() => {
+                                            <img key={item.id} height="150" src={item.images.large} onClick={() => {
                                                 OpenCardinfo(item, true);
                                             }}
-                                            /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
+                                                alt="description" /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
                                     )
                                 })) : <FormLabel > no favorite cards....</FormLabel>
                         }
-                    </ImageList><p>(Click to Remove)</p>
+                    </ImageList>
                 </Grid>
             </div >
             <div>
@@ -427,7 +433,7 @@ const Cards = () => {
                                     OnSelectPokemon ?
                                         <img
                                             src={OnSelectPokemon.images.large}
-                                        /> : ""
+                                            alt="description" /> : ""
                                 }
                             </Grid>
                         </Grid>
