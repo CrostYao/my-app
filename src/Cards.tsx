@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 // import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme, RadioGroup, Radio, Checkbox } from "@material-ui/core";
 import materialui, { Stack, Pagination, ImageList, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, FormControl, FormControlLabel, FormLabel, Grid, InputLabel, Select, Switch, TextField, RadioGroup, Radio } from "@material-ui/core";
+import SearchUI from "./SearchUI";
 
-let poke: Pokemon[] = [];
-let favoritCards: Pokemon[] = [];
+let poke: Struct.Pokemon[] = [];
+let favoritCards: Struct.Pokemon[] = [];
 let totalCount: number = 0;
 let page: number = 1;
 let totalPage: number = 0;
 let showcount: number = 20;
-let OnSelectPokemon: Pokemon;
+let OnSelectPokemon: Struct.Pokemon;
 let loading: boolean = false;
 let optionStr = "";
 let isFavor: boolean = false;
@@ -93,12 +94,12 @@ const Cards = () => {
                 console.error(e);
             });
     }
-    function SetFavorite(pokemon: Pokemon) {
+    function SetFavorite(pokemon: Struct.Pokemon) {
         if (favoritCards.indexOf(pokemon) === -1)
             favoritCards.push(pokemon);
         setFavor(favorite => ([...favoritCards]));
     }
-    function RemoveFavorite(pokemon: Pokemon) {
+    function RemoveFavorite(pokemon: Struct.Pokemon) {
         favoritCards.splice(favoritCards.indexOf(pokemon), 1);
         setFavor(favorite => ([...favoritCards]));
     }
@@ -142,7 +143,7 @@ const Cards = () => {
         setReverse(true);
         setDay(day => 0);
     }
-    function OpenCardinfo(pokemon: Pokemon, isFavorite: boolean) {
+    function OpenCardinfo(pokemon: Struct.Pokemon, isFavorite: boolean) {
         // console.log(sortoption);
         OnSelectPokemon = pokemon;
         isFavor = isFavorite;
@@ -294,7 +295,7 @@ const Cards = () => {
             </div >
             <div>
                 {/* Search Info */}
-                <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
+                <Dialog disableEscapeKeyDown open={open} onClose={handleClose} >
                     <DialogTitle>Search Options</DialogTitle>
                     <DialogContent>
                         <Box component="form" sx={{ display: "flex", flexWrap: "wrap" }}>
@@ -408,7 +409,7 @@ const Cards = () => {
                                 <Button variant="contained" color="primary" onClick={() => handleClose("", "Cancel")}>Cancel</Button>
                             </Grid>
                             <Grid item>
-                                <Button variant="contained" color="secondary" onClick={() => handleClose("", "Ok")}>Ok</Button>
+                                <Button variant="contained" color="secondary" onClick={() => { handleClose("", "Ok"); }}>Ok</Button>
                             </Grid>
                             <Grid item>
                                 <Button variant="contained" color="warning" onClick={() => onClickRestSearch()}>Reset</Button>
@@ -472,89 +473,3 @@ const Cards = () => {
 
 export default Cards;
 
-export interface Pokemon {
-    id: string;
-    name: string;
-    supertype: string;
-    sutypes: [];
-    level: number;
-    hp: number;
-    types: [];
-    evolvesFrom: string;
-    abilities: Abilities[];
-    attacks: Attacks[];
-    weaknesses: Weaknesses[];
-    retreatCost: string[];
-    set: Sets;
-    number: number;
-    artist: string;
-    rarity: string;
-    nationalPokedexNumbers: number[];
-    legalities: { unlimited: string };
-    images: { small: string; large: string; };
-    tcgplayer: TcgPlayer;
-    cardmarket: {
-        url: string;
-        updatedAt: Date;
-        prices: {
-            averageSellPrice: number;
-            lowPrice: number;
-            trendPrice: number;
-            germanProLow: number;
-            suggestedPrice: number;
-            reverseHoloSell: number;
-            reverseHoloLow: number;
-            reverseHoloTrend: number;
-            lowPriceExPlus: number;
-            avg1: number;
-            avg7: number;
-            avg30: number;
-            reverseHoloAvg1: number;
-            reverseHoloAvg7: number;
-            reverseHoloAvg30: number;
-        };
-    };
-}
-interface Abilities {
-    name: string;
-    text: string;
-    type: string;
-}
-interface Attacks {
-    name: string;
-    cost: string[];
-    convertedEnergyCost: number;
-    damage: number;
-    text: string;
-}
-interface Weaknesses {
-    type: string;
-    value: string;
-}
-interface Sets {
-    id: string;
-    name: string;
-    series: string;
-    printedTotal: number;
-    total: number;
-    legalities: { unlimited: string };
-    ptcgCode: string;
-    releaseDate: Date;
-    updatedAt: Date;
-    images: { symbol: string, logo: string };
-}
-interface TcgPlayer {
-    url: string;
-    updatedAt: string;
-    price: {
-        holofoil: Foil;
-        reverseHolofoil: Foil;
-    };
-}
-interface Foil {
-    low: number;
-    mid: number;
-    high: number;
-    market: number;
-    directLow: number;
-}
