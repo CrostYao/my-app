@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme } from "@material-ui/core";
-import { stringify } from "querystring";
-import { setSyntheticLeadingComments } from "typescript";
+import materialui, { Stack, Pagination, ImageList, ImageListItem, Dialog, DialogTitle, DialogActions, DialogContent, OutlinedInput, Box, Button, Container, createStyles, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, Icon, InputLabel, makeStyles, MenuItem, Select, Switch, TextField, Theme, RadioGroup, Radio, Checkbox } from "@material-ui/core";
 
 let poke: Pokemon[] = [];
 let favoritCards: Pokemon[] = [];
@@ -31,6 +29,8 @@ const Cards = () => {
     const [year, setYear] = useState(0);
     const [month, setMonth] = useState(0);
     const [day, setDay] = useState(0);
+    const [sortoption, setSort] = useState("Default");
+    const [reverse, setReverse] = useState(true);
 
     function OnFetch(data: any) {
         SetWaitingStr("Loading, Pleses wait some time....");
@@ -59,7 +59,7 @@ const Cards = () => {
 
     function setApi() {
         apiurl = `https://api.pokemontcg.io/v2/cards?pageSize=${showcount}&page=${currentPage}${optionStr}`;
-        console.log("Search Api : " ,apiurl);
+        console.log("Search Api : ", apiurl);
     }
 
     function ChangePage(num: number) {
@@ -115,17 +115,20 @@ const Cards = () => {
     const onDayChange = (event: any) => {
         setDay(event.target.value);
     }
-    const onClickRestSearch=()=>{
-        SetTypes(types=>"Default");
+    const onClickRestSearch = () => {
+        SetTypes(types => "Default");
         SetRarities("Default");
         SetName("Default");
         SetMin("*");
         SetMax("*");
         setYear(0);
         setMonth(0);
-        setDay(day=>0);
+        setSort("Default");
+        setReverse(true);
+        setDay(day => 0);
     }
     function OpenCardinfo(pokemon: Pokemon, isFavorite: boolean) {
+        console.log(sortoption);
         OnSelectPokemon = pokemon;
         isFavor = isFavorite;
         isFavorite ? SetFavorStr("Remove Favorite") : SetFavorStr("Set Favorite");
@@ -152,7 +155,7 @@ const Cards = () => {
                 addstr += `rarity:${rarities} `;
             }
             if (name !== ("Default" || "")) {
-                addstr += `name:*${name}* `;
+                addstr += `name:${name}* `;
             }
             if (Min === ("*") && Max === ("*")) {
 
@@ -171,12 +174,15 @@ const Cards = () => {
                     }
                 }
             }
-            if(year > 1000){
-                if(month>0 && month < 13){
-                    if(day>0 && day <31){
+            if (year > 1000) {
+                if (month > 0 && month < 13) {
+                    if (day > 0 && day < 31) {
                         addstr += `set.releaseDate:"${year}/${String("0" + month).slice(-2)}/${String("0" + day).slice(-2)}"`;
                     }
                 }
+            }
+            if (sortoption !== "Default") {
+                addstr += reverse ? `&orderBy=-${sortoption}` : `&orderBy=${sortoption}`;
             }
             if (addstr !== "") {
                 optionStr = `&q=${addstr}`;
@@ -225,8 +231,8 @@ const Cards = () => {
                     </ImageList >
                 </Grid>
                 <Grid direction="row" alignItems="center" justifyContent="center" container>
-                        <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
-                    <Button variant="contained" onClick={()=>{currentPage=10}}>jumpto10</Button>
+                    <Pagination count={totalPage} color="secondary" onChange={handleChange} disabled={loading} />
+                    <Button variant="contained" onClick={() => { currentPage = 10 }}>jumpto10</Button>
                 </Grid>
                 <Grid alignItems="center" justifyContent="center" container >
                     < h2 > Favorite Cards </h2>
@@ -251,93 +257,108 @@ const Cards = () => {
                     <DialogTitle>Search Options</DialogTitle>
                     <DialogContent>
                         <Box component="form" sx={{ display: "flex", flexWrap: "wrap" }}>
-                        <Grid direction="row" alignItems="center" justifyContent="center" container >
-                        <Grid item>
-                            <FormControl sx={{ m: 1, minWidth: 120 }}>
-                                <InputLabel>Types(屬性)</InputLabel>
-                                <Select
-                                    native
-                                    value={types}
-                                    onChange={onTypeChange}
-                                    input={<OutlinedInput label="Types(屬性)"/>}
-                                >
-                                    <option value={"Default"}>Default</option>
-                                    <option value={"Colorless"}>Colorless</option>
-                                    <option value={"Darkness"}>Darkness</option>
-                                    <option value={"Dragon"}>Dragon</option>
-                                    <option value={"Fairy"}>Fairy</option>
-                                    <option value={"Fighting"}>Fighting</option>
-                                    <option value={"Fire"}>Fire</option>
-                                    <option value={"Grass"}>Grass</option>
-                                    <option value={"Lightning"}>Lightning</option>
-                                    <option value={"Metal"}>Metal</option>
-                                    <option value={"Psychic"}>Psychic</option>
-                                    <option value={"Water"}>Water</option>
-                                </Select>
-                            </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 120 }}>
-                                <InputLabel id="demo-dialog-select-label">Rarities(稀有度)</InputLabel>
-                                <Select
-                                    native
-                                    value={rarities}
-                                    onChange={onRaritiesChange}
-                                    input={<OutlinedInput label="Rarities(稀有度)" id="demo-dialog-native" />}
-                                >
-                                    <option value={"Default"}>Default</option>
-                                    <option value={"Amazing"}>Amazing</option>
-                                    <option value={"Common"}>Common</option>
-                                    <option value={"Legend"}>Legend</option>
-                                    <option value={"Promo"}>Promo</option>
-                                    <option value={"Rare"}>Rare</option>
-                                    <option value={"\"Rare ACE\""}>Rare ACE</option>
-                                    <option value={"\"Rare BREAK\""}>Rare BREAK</option>
-                                    <option value={"\"Rare Holo\""}>Rare Holo</option>
-                                    <option value={"\"Rare Holo EX\""}>Rare Holo EX</option>
-                                    <option value={"\"Rare Holo GX\""}>Rare Holo GX</option>
-                                    <option value={"\"Rare Holo LV.X\""}>Rare Holo LV.X</option>
-                                    <option value={"\"Rare Holo Star\""}>Rare Holo Star</option>
-                                    <option value={"\"Rare Holo V\""}>Rare Holo V</option>
-                                    <option value={"\"Rare Holo VMAX\""}>Rare Holo VMAX</option>
-                                    <option value={"\"Rare Prime\""}>Rare Prime</option>
-                                    <option value={"\"Rare Prism Star\""}>Rare Prism Star</option>
-                                    <option value={"\"Rare Rainbow\""}>Rare Rainbow</option>
-                                    <option value={"\"Rare Secret\""}>Rare Secret</option>
-                                    <option value={"\"Rare Shining\""}>Rare Shining</option>
-                                    <option value={"\"Rare Shiny\""}>Rare Shiny</option>
-                                    <option value={"\"Rare Shiny GX\""}>Rare Shiny GX</option>
-                                    <option value={"\"Rare Ultra\""}>Rare Ultra</option>
-                                    <option value={"Uncommon"}>Uncommon</option>
-                                </Select>
-                            </FormControl>
-                            </Grid>
-                            <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 200 }}>
-                                <TextField label="Name" type="search" value={name} onChange={onNameChange} />
-                            </FormControl>
-                            <Grid item>
-                            {/* <Grid direction="row" alignItems="center" justifyContent="center" container > */}
-                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
-                                <TextField label="HP Min" type="search" value={Min} onChange={onHPMinChange} />
-                            </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 10 }}>
-                            <FormLabel > to</FormLabel>
-                            </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
-                                <TextField label="Hp Max" type="search"  value={Max} onChange={onHPMaxChange} />
-                            </FormControl>
-                            </Grid>
-                            <Grid direction="row" alignItems="center" justifyContent="center" container >                            <FormLabel style={{ color: "Blue"}} >Release Date:</FormLabel>
-                            <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 200 }}>
-                            <TextField  label="year" type="number" InputLabelProps={{ shrink: true, }}  value={year} onChange={onYearChange} />
-                            </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 100 }}>
-                            <TextField  label="month" type="number" InputLabelProps={{ shrink: true, }} value={month} onChange={onMonthChange} />
-                            </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 100 }}>
-                            <TextField  label="day" type="number" InputLabelProps={{ shrink: true, }} value={day} onChange={onDayChange} />
-                            </FormControl>
-                            </Grid>
+                            <Grid direction="row" alignItems="center" justifyContent="center" container >
+                                <Grid item>
+                                    <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                        <InputLabel>Types(屬性)</InputLabel>
+                                        <Select
+                                            native
+                                            value={types}
+                                            onChange={onTypeChange}
+                                            input={<OutlinedInput label="Types(屬性)" />}
+                                        >
+                                            <option value={"Default"}>Default</option>
+                                            <option value={"Colorless"}>Colorless</option>
+                                            <option value={"Darkness"}>Darkness</option>
+                                            <option value={"Dragon"}>Dragon</option>
+                                            <option value={"Fairy"}>Fairy</option>
+                                            <option value={"Fighting"}>Fighting</option>
+                                            <option value={"Fire"}>Fire</option>
+                                            <option value={"Grass"}>Grass</option>
+                                            <option value={"Lightning"}>Lightning</option>
+                                            <option value={"Metal"}>Metal</option>
+                                            <option value={"Psychic"}>Psychic</option>
+                                            <option value={"Water"}>Water</option>
+                                        </Select>
+                                    </FormControl>
+                                    <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                        <InputLabel id="demo-dialog-select-label">Rarities(稀有度)</InputLabel>
+                                        <Select
+                                            native
+                                            value={rarities}
+                                            onChange={onRaritiesChange}
+                                            input={<OutlinedInput label="Rarities(稀有度)" id="demo-dialog-native" />}
+                                        >
+                                            <option value={"Default"}>Default</option>
+                                            <option value={"Amazing"}>Amazing</option>
+                                            <option value={"Common"}>Common</option>
+                                            <option value={"Legend"}>Legend</option>
+                                            <option value={"Promo"}>Promo</option>
+                                            <option value={"Rare"}>Rare</option>
+                                            <option value={"\"Rare ACE\""}>Rare ACE</option>
+                                            <option value={"\"Rare BREAK\""}>Rare BREAK</option>
+                                            <option value={"\"Rare Holo\""}>Rare Holo</option>
+                                            <option value={"\"Rare Holo EX\""}>Rare Holo EX</option>
+                                            <option value={"\"Rare Holo GX\""}>Rare Holo GX</option>
+                                            <option value={"\"Rare Holo LV.X\""}>Rare Holo LV.X</option>
+                                            <option value={"\"Rare Holo Star\""}>Rare Holo Star</option>
+                                            <option value={"\"Rare Holo V\""}>Rare Holo V</option>
+                                            <option value={"\"Rare Holo VMAX\""}>Rare Holo VMAX</option>
+                                            <option value={"\"Rare Prime\""}>Rare Prime</option>
+                                            <option value={"\"Rare Prism Star\""}>Rare Prism Star</option>
+                                            <option value={"\"Rare Rainbow\""}>Rare Rainbow</option>
+                                            <option value={"\"Rare Secret\""}>Rare Secret</option>
+                                            <option value={"\"Rare Shining\""}>Rare Shining</option>
+                                            <option value={"\"Rare Shiny\""}>Rare Shiny</option>
+                                            <option value={"\"Rare Shiny GX\""}>Rare Shiny GX</option>
+                                            <option value={"\"Rare Ultra\""}>Rare Ultra</option>
+                                            <option value={"Uncommon"}>Uncommon</option>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 200 }}>
+                                    <TextField label="Name" type="search" value={name} onChange={onNameChange} />
+                                </FormControl>
+                                <Grid item>
+                                    {/* <Grid direction="row" alignItems="center" justifyContent="center" container > */}
+                                    <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
+                                        <TextField label="HP Min" type="search" value={Min} onChange={onHPMinChange} />
+                                    </FormControl>
+                                    <FormControl sx={{ m: 1, minWidth: 10 }}>
+                                        <FormLabel > to</FormLabel>
+                                    </FormControl>
+                                    <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 150 }}>
+                                        <TextField label="Hp Max" type="search" value={Max} onChange={onHPMaxChange} />
+                                    </FormControl>
+                                </Grid>
+                                <Grid direction="row" alignItems="center" justifyContent="center" container >                            <FormLabel style={{ color: "Blue" }} >Release Date:</FormLabel>
+                                    <FormControl sx={{ m: 1, minWidth: 100, maxWidth: 150 }}>
+                                        <TextField label="year" type="number" InputLabelProps={{ shrink: true, }} value={year} onChange={onYearChange} />
+                                    </FormControl>
+                                    <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 100 }}>
+                                        <TextField label="month" type="number" InputLabelProps={{ shrink: true, }} value={month} onChange={onMonthChange} />
+                                    </FormControl>
+                                    <FormControl sx={{ m: 1, minWidth: 50, maxWidth: 100 }}>
+                                        <TextField label="day" type="number" InputLabelProps={{ shrink: true, }} value={day} onChange={onDayChange} />
+                                    </FormControl>
+                                </Grid>
                             </Grid>
                         </Box>
+                        <Grid alignItems="center" justifyContent="center" container spacing={3} >
+                            <Grid item>
+                                <FormControlLabel control={<Switch checked={reverse} onChange={(event: React.SyntheticEvent<Element, Event>, checked: boolean) => { setReverse(checked); }} />} label="Reverse" />
+                                <FormLabel style={{ color: "orchid", verticalAlign: "middle", fontWeight: 100 }}> sort by : </FormLabel>
+                            </Grid>
+                            <Grid item>
+                                <RadioGroup row aria-label="gender" value={sortoption} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setSort(event.target.value) }}>
+                                    <FormControlLabel value="Default" control={<Radio />} label="Default" />
+                                    <FormControlLabel value="name" control={<Radio />} label="Name" />
+                                    <FormControlLabel value="rarities" control={<Radio />} label="Rarities" />
+                                    <FormControlLabel value="types" control={<Radio />} label="Type" />
+                                    <FormControlLabel value="set.releaseDate" control={<Radio />} label="Releas Date" />
+                                </RadioGroup>
+                            </Grid>
+                        </Grid>
                     </DialogContent>
                     <DialogActions>
                         <Grid alignItems="center" justifyContent="center" container spacing={5}>
@@ -375,19 +396,19 @@ const Cards = () => {
                             </Grid>
                         </Grid>
                         <Grid alignItems="center" justifyContent="center" container>
-                        <Stack spacing={3}>
-                            <Grid item>
-                                <FormLabel style={{ color: "Blue", verticalAlign: "middle" }}> Series : </FormLabel>
-                                <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.set.series : ""} </FormLabel >
-                            </Grid>
-                            <Grid item>
-                                <FormLabel style={{ color: "Green", verticalAlign: "middle" }}> Release Date :</FormLabel>
-                                <FormLabel style={{ verticalAlign: "middle" }} >{OnSelectPokemon ? OnSelectPokemon.set.releaseDate : ""} </FormLabel >
-                            </Grid>
-                            <Grid item>
-                                <FormLabel style={{ color: "red", verticalAlign: "middle" }}> Rarity : </FormLabel>
-                                <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.rarity : ""} </FormLabel >
-                            </Grid>
+                            <Stack spacing={3}>
+                                <Grid item>
+                                    <FormLabel style={{ color: "Blue", verticalAlign: "middle" }}> Series : </FormLabel>
+                                    <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.set.series : ""} </FormLabel >
+                                </Grid>
+                                <Grid item>
+                                    <FormLabel style={{ color: "Green", verticalAlign: "middle" }}> Release Date :</FormLabel>
+                                    <FormLabel style={{ verticalAlign: "middle" }} >{OnSelectPokemon ? OnSelectPokemon.set.releaseDate : ""} </FormLabel >
+                                </Grid>
+                                <Grid item>
+                                    <FormLabel style={{ color: "red", verticalAlign: "middle" }}> Rarity : </FormLabel>
+                                    <FormLabel style={{ verticalAlign: "middle" }} > {OnSelectPokemon ? OnSelectPokemon.rarity : ""} </FormLabel >
+                                </Grid>
                             </Stack>
                         </Grid>
                     </DialogContent>
