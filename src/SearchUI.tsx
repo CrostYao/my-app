@@ -235,8 +235,15 @@ const SearchUI: React.FC<Props> = (props) => {
                                 >
                                     {
                                         Rarity.map((item, i) => {
+                                            let showValue = "";
+                                            if (item.indexOf("\"") !== -1) {
+                                                showValue = item.replace("\"", "");
+                                                showValue = showValue.replace("\"", "");
+                                            } else {
+                                                showValue = item;
+                                            }
                                             return (
-                                                <option key={i} value={item}>{item}</option>
+                                                <option key={i} value={item}>{showValue}</option>
                                             )
                                         })
                                     }

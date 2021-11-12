@@ -1,5 +1,5 @@
-import materialui, { Stack, DialogTitle, DialogActions, DialogContent, Button, FormLabel, Grid } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import { Stack, DialogTitle, DialogActions, DialogContent, Button, FormLabel, Grid } from "@material-ui/core";
+import React from "react";
 
 type Props = {
     OnSelectPokemon: Struct.Pokemon;
