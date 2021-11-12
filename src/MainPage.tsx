@@ -109,16 +109,19 @@ const MainPage = () => {
         setOpen(true);
     };
     return (
-        <div>
+        <div style={{ backgroundColor: '#064b88', }}>
             <Grid alignItems="center" justifyContent="center" container >
-                <h1 style={{ color: "red", verticalAlign: "middle" }}>See All these Pokemon</h1>
+                <h1 style={{ color: "white", verticalAlign: "middle" }}>Pokemon TCG Card</h1>
             </Grid>
             {/** Select Search Options */}
             <Grid alignItems="center" justifyContent="center" container  >
                 <Button variant="contained" onClick={handleClickOpen}>Open Search Options</Button>
             </Grid>
             <Grid direction="row" alignItems="center" justifyContent="center" container >
-                <ImageList sx={{ height: 600, width: 800 }} cols={5} gap={10}>
+                <ImageList sx={{ height: 600, width: 800 }} cols={5} gap={10}
+                    style={{
+                        backgroundColor: '#172742',
+                    }}>
                     {
                         pokemon.length !== 0 ?
                             pokemon.map((item, i) => {
@@ -132,7 +135,7 @@ const MainPage = () => {
                                     )
                                 }
                             }) :
-                            <FormLabel > {waitStr} </FormLabel >
+                            <FormLabel style={{ color: "white" }}> {waitStr} </FormLabel >
                     }
                 </ImageList >
             </Grid>
@@ -158,14 +161,14 @@ const MainPage = () => {
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid alignItems="center" justifyContent="center" container >
+            <Grid alignItems="center" justifyContent="center" container color="pink">
                 < h2 > Favorite Cards </h2>
             </Grid>
             <Grid alignItems="center" justifyContent="center" container >
                 <p>(Click to Check or Remove)</p>
             </Grid>
             <Grid direction="row" alignItems="center" justifyContent="center" container >
-                <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5}>
+                <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5} style={{ backgroundColor: '#172742', }}>
                     {
                         favorite.length !== 0 ? (
                             favorite.map((item, i) => {
@@ -176,7 +179,7 @@ const MainPage = () => {
                                         }}
                                             alt="description" /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
                                 )
-                            })) : <FormLabel > no favorite cards....</FormLabel>
+                            })) : <FormLabel style={{ color: "white" }}> no favorite cards....</FormLabel>
                     }
                 </ImageList>
             </Grid>

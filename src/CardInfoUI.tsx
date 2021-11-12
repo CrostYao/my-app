@@ -13,9 +13,11 @@ type Props = {
 const CardInfoUI: React.FC<Props> = (props) => {
 
     return (
-        <div>
+        <div style={{
+            backgroundColor: '#172742',
+        }}>
             <Grid alignItems="center" justifyContent="center" container >
-                <DialogTitle>
+                <DialogTitle color="white">
                     {props.OnSelectPokemon ? props.OnSelectPokemon.name : ""}
                 </DialogTitle>
             </Grid>
@@ -30,7 +32,10 @@ const CardInfoUI: React.FC<Props> = (props) => {
                         }
                     </Grid>
                 </Grid>
-                <Grid alignItems="center" justifyContent="center" container>
+                <Grid alignItems="center" justifyContent="center" container
+                    style={{
+                        backgroundColor: '#c2c7ab',
+                    }}>
                     <Stack spacing={3}>
                         <Grid item>
                             <FormLabel style={{ color: "Blue", verticalAlign: "middle" }}> Series : </FormLabel>
@@ -57,7 +62,7 @@ const CardInfoUI: React.FC<Props> = (props) => {
                     </Grid>
                 </Grid>
             </DialogActions>
-        </div>
+        </div >
     )
 }
 export default CardInfoUI;
