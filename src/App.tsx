@@ -1,12 +1,12 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Cards from "./Cards";
+import MainPage from "./MainPage";
 
 function App() {
   return (
     <div className="App">
-      <Cards />
+      <MainPage />
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
