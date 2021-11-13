@@ -1,4 +1,4 @@
-import { Stack, DialogTitle, DialogActions, DialogContent, Button, FormLabel, Grid } from "@material-ui/core";
+import { Stack, DialogTitle, DialogActions, DialogContent, Button, FormLabel, Grid, } from "@material-ui/core";
 import React from "react";
 
 type Props = {
@@ -22,12 +22,13 @@ const CardInfoUI: React.FC<Props> = (props) => {
                 </DialogTitle>
             </Grid>
             <DialogContent>
-                <Grid alignItems="center" justifyContent="center" container spacing={5}>
+                <Grid alignItems="center" justifyContent="center" container>
                     <Grid item>
                         {
                             props.OnSelectPokemon ?
                                 <img
                                     src={props.OnSelectPokemon.images.large}
+                                    width={"500vh"}
                                     alt="description" /> : ""
                         }
                     </Grid>

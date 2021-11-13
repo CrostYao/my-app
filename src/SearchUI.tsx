@@ -206,7 +206,7 @@ const SearchUI: React.FC<Props> = (props) => {
             <DialogTitle>Search Options</DialogTitle>
             <DialogContent>
                 <Box component="form" sx={{ display: "flex", flexWrap: "wrap" }}>
-                    <Grid direction="row" alignItems="center" justifyContent="center" container >
+                    <Grid direction="row" alignItems="center" justifyContent="left" container >
                         <Grid item>
                             <FormControl sx={{ m: 1, minWidth: 120 }}>
                                 <InputLabel>Types(屬性)</InputLabel>

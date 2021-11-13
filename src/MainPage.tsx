@@ -123,43 +123,44 @@ const MainPage = () => {
                         backgroundColor: '#172742',
                     }}>
                     {
-                        pokemon.length !== 0 ?
-                            pokemon.map((item, i) => {
-                                // Return the element. Also pass key
-                                {
-                                    return (
-                                        item.images ? <img key={item.id} height="200" src={item.images.large} onClick={() => {
-                                            OpenCardinfo(item, false);
-                                        }} alt="description" /> :
-                                            <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
-                                    )
-                                }
-                            }) :
-                            <FormLabel style={{ color: "white" }}> {waitStr} </FormLabel >
+                        pokemon.length !== 0 ? pokemon.map((item, i) => {
+                            {
+                                return (
+                                    item.images ? <img key={item.id} height="200" src={item.images.large} onClick={() => {
+                                        OpenCardinfo(item, false);
+                                    }} alt="description" /> :
+                                        <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
+                                )
+                            }
+                        }) : <FormLabel style={{ color: "white" }}> {waitStr} </FormLabel >
                     }
                 </ImageList >
             </Grid>
             <Grid direction="row" alignItems="center" justifyContent="center" container>
-                <Pagination count={totalPage} color="secondary" onChange={handleChange} page={currentPage} disabled={loading} />
-                <FormControl sx={{ m: 1, minWidth: 100 }}>
-                    <InputLabel>Jump to</InputLabel>
-                    <Select
-                        native
-                        value={selectPage.toString()}
-                        onChange={((event: materialui.SelectChangeEvent<string>, child: React.ReactNode) => { ChangePage(Number(event.target.value)); })}
-                        label={"Jump to"}
-                    >
-                        {
-                            pageArray.map((num, arr) => {
-                                {
-                                    return (
-                                        <option key={num} value={num}>{num}</option>
-                                    )
-                                }
-                            })
-                        }
-                    </Select>
-                </FormControl>
+                <Grid item>
+                    <Pagination count={totalPage} color="secondary" onChange={handleChange} page={currentPage} disabled={loading} />
+                </Grid>
+                <Grid item>
+                    <FormControl sx={{ m: 1, minWidth: 100 }}>
+                        <InputLabel>Jump to</InputLabel>
+                        <Select
+                            native
+                            value={selectPage.toString()}
+                            onChange={((event: materialui.SelectChangeEvent<string>, child: React.ReactNode) => { ChangePage(Number(event.target.value)); })}
+                            label={"Jump to"}
+                        >
+                            {
+                                pageArray.map((num, arr) => {
+                                    {
+                                        return (
+                                            <option key={num} value={num}>{num}</option>
+                                        )
+                                    }
+                                })
+                            }
+                        </Select>
+                    </FormControl>
+                </Grid>
             </Grid>
             <Grid alignItems="center" justifyContent="center" container color="pink">
                 < h2 > Favorite Cards </h2>
@@ -170,25 +171,23 @@ const MainPage = () => {
             <Grid direction="row" alignItems="center" justifyContent="center" container >
                 <ImageList sx={{ height: 200, width: 650 }} cols={5} gap={5} style={{ backgroundColor: '#172742', }}>
                     {
-                        favorite.length !== 0 ? (
-                            favorite.map((item, i) => {
-                                return (
-                                    item.images ?
-                                        <img key={item.id} height="150" src={item.images.large} onClick={() => {
-                                            OpenCardinfo(item, true);
-                                        }}
-                                            alt="description" /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
-                                )
-                            })) : <FormLabel style={{ color: "white" }}> no favorite cards....</FormLabel>
+                        favorite.length !== 0 ? favorite.map((item, i) => {
+                            return (
+                                item.images ?
+                                    <img style={{ alignSelf: 'center' }} key={item.id} height="150" src={item.images.large} onClick={() => {
+                                        OpenCardinfo(item, true);
+                                    }} alt="description" /> : <FormLabel style={{ color: "orchid" }}> Load Image Failed </FormLabel>
+                            )
+                        }) : <FormLabel style={{ color: "white" }}> no favorite cards....</FormLabel>
                     }
                 </ImageList>
             </Grid>
             {/** Search UI */}
-            <Dialog fullWidth={true} maxWidth={"xl"} disableEscapeKeyDown open={openinfo} onClose={() => { CloseCardinfo(); }}>
+            <Dialog fullWidth={true} disableEscapeKeyDown open={openinfo} onClose={() => { CloseCardinfo(); }}>
                 <CardInfoUI OnSelectPokemon={OnSelectPokemon} isFavor={isFavor} CloseCardinfo={CloseCardinfo} RemoveFavorite={RemoveFavorite} SetFavorite={SetFavorite} FavorStr={FavorStr} />
             </Dialog>
             {/** Select Card Info */}
-            <Dialog disableEscapeKeyDown open={open}>{/*onClose={() => { (setOpen(false)) }}*/}
+            <Dialog disableEscapeKeyDown open={open} fullWidth={true} >{/*onClose={() => { (setOpen(false)) }}*/}
                 <SearchUI onSetSearch_OptionStr={setSeatchStr} onOpen={setOpen} onChangePage={ChangePage}></SearchUI>
             </Dialog>
         </div >
