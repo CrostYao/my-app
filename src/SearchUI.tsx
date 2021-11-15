@@ -137,6 +137,26 @@ const SearchUI: React.FC<Props> = (props) => {
                 if (month > 0 && month < 13) {
                     if (day > 0 && day < 31) {
                         addstr += `set.releaseDate:"${year}/${String("0" + month).slice(-2)}/${String("0" + day).slice(-2)}"`;
+                    } else {
+                        addstr += `set.releaseDate:"${year}/${String("0" + month).slice(-2)}/*"`;
+                    }
+                } else {
+                    if (day > 0) {
+                        addstr += `set.releaseDate:"${year}/*/${String("0" + day).slice(-2)}"`;
+                    } else {
+                        addstr += `set.releaseDate:"${year}/*/*"`;
+                    }
+                }
+            } else {
+                if (month > 0 && month < 13) {
+                    if (day > 0 && day < 31) {
+                        addstr += `set.releaseDate:"*/${String("0" + month).slice(-2)}/${String("0" + day).slice(-2)}"`;
+                    } else {
+                        addstr += `set.releaseDate:"*/${String("0" + month).slice(-2)}/*"`;
+                    }
+                } else {
+                    if (day > 0 && day < 31) {
+                        addstr += `set.releaseDate:"*/*/${String("0" + day).slice(-2)}"`;
                     }
                 }
             }
